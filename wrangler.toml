@@ -1,0 +1,19 @@
+# Cloudflare Workers configuration for the Friday website.
+# Workers Builds runs `npx wrangler deploy` on every push to the production branch.
+# The Worker's name in the dashboard wins over `name` here (Workers Builds overrides it).
+
+name = "friday"
+main = "worker/index.js"
+compatibility_date = "2026-10-01"
+
+# The website: everything in launch/site, served as static files.
+# Only /api/* runs the Worker first; every other path is a plain file.
+[assets]
+directory = "./launch/site"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+# Pre-order list used by functions/api/waitlist.js. Created 2026-11-05 as "friday-waitlist".
+[[kv_namespaces]]
+binding = "WAITLIST"
+id = "95b33f5e1d5f464ab93ebd548e0686ad"

@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Friday — every answer, a receipt</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Friday is a desktop assistant for Windows that uses the Claude, Codex or Gemini CLI you already pay for, and labels every answer: answered on your PC, sent with identifiers hidden, or withheld.">
+<meta name="theme-color" content="#0A0B0C">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Friday — every answer, a receipt">
+<meta property="og:description" content="A Windows assistant that uses the AI subscription you already have and tells you, every time, what left your computer.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230A0B0C'/%3E%3Cg transform='rotate(-14 16 16)'%3E%3Crect x='5' y='9.5' width='22' height='3.4' rx='1.7' fill='%23A9C2B3'/%3E%3Crect x='5' y='14.3' width='22' height='3.4' rx='1.7' fill='%23C9B99A'/%3E%3Crect x='5' y='19.1' width='22' height='3.4' rx='1.7' fill='%23C9A0A0'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/hanken.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/instrument-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/jbm-400.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* Everything is self-hosted (fonts: SIL OFL 1.1 via Fontsource; three.js and Lenis: MIT):
+   loading this page makes no third-party request. */
+@font-face{font-family:"Hanken Grotesk";src:url(fonts/hanken.woff2) format("woff2");font-weight:100 900;font-display:optional}
+@font-face{font-family:"Instrument Serif";src:url(fonts/instrument-italic.woff2) format("woff2");font-style:italic;font-weight:400;font-display:optional}
+@font-face{font-family:"JetBrains Mono";src:url(fonts/jbm-400.woff2) format("woff2");font-weight:400;font-display:optional}
+@font-face{font-family:"JetBrains Mono";src:url(fonts/jbm-600.woff2) format("woff2");font-weight:600;font-display:optional}
+
+/* Confidence palette (plan/website/07-trust-colour.md): one matte graphite world, low-chroma
+   route tints, one brass accent for hairlines. Saturated colour is gone: chroma raises arousal,
+   not trust. Layout: opening question → hero with receipts → the 3D room as one chapter →
+   how she decides → what she does → the line → questions → close. */
+:root{
+  color-scheme:dark;
+  --bg:#0A0B0C; --bg-2:#111315; --bg-3:#17191C;
+  --hair:rgba(236,235,231,.10); --hair-2:rgba(236,235,231,.20);
+  --ink:#ECEBE7; --soft:#B9BAC0; --muted:#8B8D95;
+  --local:#A9C2B3; --mask:#C9B99A; --held:#C9A0A0; --ghost:#A9B6C9; --brass:#B7A58D;
+  --g-local:linear-gradient(100deg,#4F6359 0%,#7E988A 50%,#A9C2B3 100%);
+  --g-mask:linear-gradient(100deg,#6E6149 0%,#A9987A 50%,#D6C6A6 100%);
+  --g-held:linear-gradient(100deg,#6E4F4F 0%,#A57F7F 50%,#C9A0A0 100%);
+  --f:"Hanken Grotesk","Helvetica Neue",Arial,sans-serif;
+  --f-serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace;
+  --max:78rem; --measure:60ch; --ease:cubic-bezier(.16,1,.3,1);
+  --gl:max(16px, env(safe-area-inset-left,0px)); --gr:max(16px, env(safe-area-inset-right,0px));
+  --gut:clamp(20px,3.2vw,48px); --pad:clamp(20px,7vw,120px);
+}
+*{box-sizing:border-box}
+html{background:var(--bg);-webkit-text-size-adjust:100%;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font:300 1.0625rem/1.65 var(--f);-webkit-font-smoothing:antialiased;overflow-x:clip}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--bg)}
+p{margin:0;max-width:var(--measure)}
+h1,h2,h3{margin:0;font-weight:300;text-wrap:balance}
+a{color:inherit}
+:focus-visible{outline:1px solid var(--ink);outline-offset:4px;border-radius:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mono{font-family:var(--f-mono)}
+.skip{position:absolute;left:var(--gl);top:-80px;z-index:60;background:var(--ink);color:var(--bg);padding:12px 18px;font:500 11px/1 var(--f);letter-spacing:.22em;text-transform:uppercase;text-decoration:none}
+.skip:focus{top:calc(12px + env(safe-area-inset-top,0px))}
+.band{position:relative;z-index:10;background:var(--bg);padding-left:var(--gl);padding-right:var(--gr)}
+.inner{max-width:var(--max);margin-inline:auto}
+.grain{position:absolute;inset:0;pointer-events:none;opacity:.045;mix-blend-mode:overlay;z-index:1;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.kick{max-width:none;display:flex;align-items:center;gap:16px;font:500 10.5px/1 var(--f);letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+.kick::before{content:"";width:34px;height:1px;background:var(--brass)}
+.h2{font-weight:250;font-size:clamp(2.3rem,5.4vw,4.4rem);line-height:.98;letter-spacing:-.04em;max-width:17ch;margin-top:24px}
+.h2 i,.hero h1 i,.close .big i,.open .ol i{font-family:var(--f-serif);font-weight:400;font-style:italic;letter-spacing:-.01em}
+.lede{font-size:clamp(1.05rem,1.5vw,1.2rem);color:var(--soft);margin-top:22px}
+.lede b{color:var(--ink);font-weight:400}
+
+/* route marks: a tinted dot plus words. Colour is never the only signal. */
+.dot{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+.dot.here{background:var(--local)}.dot.sent{background:var(--mask)}.dot.held{background:var(--held)}
+.tag{display:inline-flex;align-items:center;gap:8px;font:400 .78rem/1.35 var(--f-mono);padding:5px 10px;border-radius:3px;border:1px solid;max-width:100%}
+.tag span{min-width:0;overflow-wrap:anywhere}
+.tag.here{color:var(--local);border-color:rgba(169,194,179,.32)}
+.tag.sent{color:var(--mask);border-color:rgba(201,185,154,.32)}
+.tag.held{color:var(--held);border-color:rgba(201,160,160,.36)}
+.stripes{display:grid;grid-template-rows:repeat(3,1fr);gap:16px;pointer-events:none}
+.stripes i{display:block;border-radius:999px}
+.stripes i:nth-child(1){background:var(--g-local)}.stripes i:nth-child(2){background:var(--g-mask)}.stripes i:nth-child(3){background:var(--g-held)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;font:500 11px/1 var(--f);letter-spacing:.22em;text-transform:uppercase;white-space:nowrap;
+  padding:17px 26px;border:1px solid var(--hair-2);border-radius:3px;color:var(--ink);background:transparent;text-decoration:none;cursor:pointer;
+  box-shadow:inset 0 1px rgba(255,255,255,.06);transition:background-color .45s var(--ease),color .45s var(--ease),border-color .45s var(--ease)}
+.btn:hover{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.solid{background:var(--ink);color:var(--bg);border-color:var(--ink);box-shadow:0 10px 35px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.4)}
+.btn.solid:hover{background:transparent;color:var(--ink);border-color:var(--hair-2)}
+.btn-sm{padding:13px 18px}
+.btn .play{width:0;height:0;border-left:6px solid currentColor;border-top:4px solid transparent;border-bottom:4px solid transparent}
+
+/* ── header ─────────────────────────────── */
+header{position:absolute;left:0;right:0;top:0;z-index:30;padding-left:var(--gl);padding-right:var(--gr)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:calc(22px + env(safe-area-inset-top,0px)) 18px}
+.brand{display:inline-flex;align-items:center;gap:12px;text-decoration:none;font:400 13px/1 var(--f);letter-spacing:.5em;text-transform:uppercase}
+.mark{width:20px;height:18px;transform:rotate(-14deg);display:grid;grid-template-rows:repeat(3,1fr);gap:2.5px}
+.mark i{border-radius:9px}.mark i:nth-child(1){background:var(--local)}.mark i:nth-child(2){background:var(--mask)}.mark i:nth-child(3){background:var(--held)}
+.links{display:flex;align-items:center;gap:26px;list-style:none;margin:0;padding:0}
+.links a{position:relative;display:inline-block;font:500 10.5px/1 var(--f);letter-spacing:.24em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:10px 0;transition:color .3s}
+.links a::after{content:"";position:absolute;left:0;right:.24em;bottom:4px;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ease)}
+.links a:hover{color:var(--ink)}.links a:hover::after{transform:scaleX(1)}
+.menu-btn{display:none;font:500 10.5px/1 var(--f);letter-spacing:.24em;text-transform:uppercase;background:none;color:var(--ink);border:1px solid var(--hair-2);border-radius:3px;padding:12px 16px;cursor:pointer}
+@media (max-width:900px){
+  .menu-btn{display:inline-block}
+  .links{display:none;position:absolute;left:var(--gl);right:var(--gr);top:100%;flex-direction:column;align-items:stretch;gap:0;background:var(--bg-2);border:1px solid var(--hair);border-radius:6px;padding:8px}
+  .links.open{display:flex}
+  .links a{padding:16px;font-size:11px;color:var(--ink)}.links a::after{display:none}
+}
+
+/* ── opening: a question before the introduction ───────── */
+.open{position:relative;z-index:10;background:var(--bg)}
+.open .stage{position:relative;min-height:100svh;display:grid;align-content:center;padding:120px var(--gr) 120px var(--gl);overflow:hidden;isolation:isolate}
+.open .glow{position:absolute;inset:auto -10% -30% -10%;height:80%;z-index:0;pointer-events:none;
+  background:radial-gradient(50% 60% at 50% 100%,rgba(183,165,141,.16),transparent 70%)}
+.open .lines{position:relative;z-index:2;max-width:var(--max);margin-inline:auto;width:100%;display:grid;gap:clamp(28px,6vh,56px)}
+.open .ol{font-weight:200;font-size:clamp(2.6rem,10vw,6.6rem);line-height:1;letter-spacing:-.045em;max-width:15ch}
+.open .ol.sm{max-width:none;font:500 10.5px/1 var(--f);letter-spacing:.3em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:16px}
+.open .ol.sm::before{content:"";width:34px;height:1px;background:var(--brass)}
+.open .ol .dim{color:var(--muted)}
+.open .skipline{position:absolute;z-index:3;left:var(--gl);right:var(--gr);bottom:calc(28px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:center;max-width:var(--max);margin-inline:auto}
+.open .cue{display:flex;align-items:center;gap:12px;font:500 9.5px/1 var(--f);letter-spacing:.34em;text-transform:uppercase;color:var(--muted)}
+.open .cue i{width:1px;height:34px;background:linear-gradient(var(--ink),transparent);transform-origin:top}
+.open .skip-intro{font:500 9.5px/1 var(--f);letter-spacing:.3em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:12px 0}
+.open .skip-intro:hover{color:var(--ink)}
+/* with script: one tall track, the stage pins, and each line takes its turn */
+.seq .open{height:250vh}
+/* while the room is still downloading, say so instead of showing an empty scroll */
+.room-wait{display:none}
+.room-loading .room-wait{display:block;position:sticky;top:46vh;z-index:14;text-align:center;font:500 10px/1.8 var(--f);letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin:0;max-width:none}
+.room-wait a{color:var(--ink)}
+/* how we check */
+.checks{padding-block:140px;border-top:1px solid var(--hair)}
+.gates{display:grid;gap:0;margin-top:56px;border-top:1px solid var(--hair-2)}
+@media (min-width:760px){.gates{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1180px){.gates{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.gate{padding:28px 28px 28px 0;min-width:0}
+@media (min-width:760px){.gate:nth-child(2n){padding-left:28px;border-left:1px solid var(--hair)}}
+@media (min-width:1180px){.gate+.gate{padding-left:28px;border-left:1px solid var(--hair)}}
+.gate .gh{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.gate h3{font:500 10.5px/1 var(--f);letter-spacing:.28em;text-transform:uppercase}
+.gate .pass{font:400 .7rem/1 var(--f-mono);color:var(--local)}
+.gate .why{font-size:.95rem;color:var(--soft);margin-top:12px}
+.gate ul{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:8px}
+.gate li{display:grid;grid-template-columns:14px 1fr;gap:10px;font:400 .76rem/1.5 var(--f-mono);color:var(--muted)}
+.gate li::before{content:"✓";color:var(--local)}
+.checks .after{margin-top:40px;font-size:1.04rem;color:var(--soft);padding-left:20px;border-left:1px solid var(--brass);max-width:66ch}
+.checks .after b{color:var(--ink);font-weight:400}
+.seq .open .stage{position:sticky;top:0;height:100svh}
+.seq .open .lines{display:block;position:relative;min-height:min(60vh,520px)}
+.seq .open .ol{position:absolute;left:0;top:50%;transform:translate3d(0,calc(-50% + 22px),0);opacity:0;will-change:opacity,transform}
+.seq .open .ol.sm{top:12%}
+.seq .open .ol.first{opacity:1;transform:translate3d(0,-50%,0)}
+
+/* ── hero ───────────────────────────────── */
+.hero-band{overflow:hidden;isolation:isolate}
+.hero{position:relative;z-index:2;display:grid;gap:64px;align-items:center;padding-block:120px 140px}
+@media (min-width:1080px){.hero{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)}}
+.hero h1{font-weight:200;font-size:clamp(3.2rem,8.4vw,7.6rem);line-height:.9;letter-spacing:-.05em;margin-top:28px}
+.hero h1 i{display:block;padding-bottom:.04em}
+.hero .sub{font-size:clamp(1.08rem,1.6vw,1.25rem);line-height:1.6;color:var(--soft);max-width:44ch;margin-top:30px}
+.hero .sub b{color:var(--ink);font-weight:400}
+.ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:38px}
+.reqs{font:400 .72rem/1.6 var(--f-mono);color:var(--muted);margin-top:24px}
+.shot{position:relative;isolation:isolate}
+.shot .stripes{position:absolute;z-index:-1;left:-24%;right:-60%;top:50%;height:min(280px,60%);transform:translateY(-50%) rotate(-12deg);filter:blur(22px);opacity:.42;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 30%,#000 80%,transparent);mask-image:linear-gradient(90deg,transparent 0%,#000 30%,#000 80%,transparent)}
+.shot .cap2{font:500 9.5px/1.4 var(--f);letter-spacing:.26em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cards{display:grid;gap:12px}
+.card{position:relative;background:linear-gradient(180deg,rgba(17,19,21,.92),rgba(12,13,15,.9));border:1px solid var(--hair);border-radius:6px;padding:20px 22px;display:grid;gap:11px;min-width:0;
+  box-shadow:0 30px 80px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.04);transition:border-color .6s var(--ease)}
+.card::before{content:"";position:absolute;left:22px;width:40px;top:-1px;height:1px}
+.card.here::before{background:var(--local)}.card.sent::before{background:var(--mask)}.card.held::before{background:var(--held)}
+.card .q{font:400 .8rem/1.5 var(--f-mono);color:var(--muted);overflow-wrap:anywhere}
+.card .q::before{content:"you · ";opacity:.75}
+.card .a{font:400 .88rem/1.5 var(--f-mono);color:var(--ink);overflow-wrap:anywhere}
+.card .a::before{content:"→ ";color:var(--muted)}
+.card.now{border-color:var(--hair-2)}
+@media (min-width:1080px){.cards .card:nth-child(2){margin-left:-28px;margin-right:28px}}
+
+/* ── the 3D chapter (ported from the Friday Store Page) ─────────── */
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;background:var(--bg)}
+.scrim,.bars,.giant,.caps,.hud{opacity:0;visibility:hidden;transition:opacity .6s var(--ease),visibility .6s}
+.in-story .scrim,.in-story .bars,.in-story .giant,.in-story .caps,.in-story .hud{opacity:1;visibility:visible}
+.scrim{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(90deg,rgba(7,9,11,.93) 0%,rgba(7,9,11,.65) 29%,rgba(7,9,11,.12) 57%,transparent 85%),linear-gradient(0deg,rgba(7,9,11,.72),transparent 30%),linear-gradient(180deg,rgba(7,9,11,.35),transparent 32%)}
+@media (max-width:820px){.scrim{background:linear-gradient(0deg,rgba(7,9,11,.96),rgba(7,9,11,.80) 37%,rgba(7,9,11,.08) 74%)}}
+.giant{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.giant span{position:absolute;left:0;top:50%;white-space:nowrap;font:200 clamp(7rem,21vw,26rem)/.8 var(--f);letter-spacing:-.05em;color:transparent;-webkit-text-stroke:1px rgba(236,235,231,.14);opacity:0;will-change:transform,opacity}
+@media (max-width:820px){.giant{display:none}}
+.bars{position:fixed;inset:0;z-index:3;pointer-events:none}
+.bars::before,.bars::after{content:"";position:absolute;left:0;right:0;height:5.5vh;background:#050607;transform:scaleY(0);transition:transform 1.1s var(--ease)}
+.bars::before{top:0;transform-origin:top}.bars::after{bottom:0;transform-origin:bottom}
+.bars-on .bars::before,.bars-on .bars::after{transform:scaleY(1)}
+@media (max-width:820px){.bars{display:none}}
+#story{position:relative;z-index:5;height:820vh}
+.caps{position:fixed;inset:0;z-index:12;pointer-events:none}
+.cap{position:absolute;left:var(--pad);top:50%;max-width:30rem;opacity:0;transform:translate3d(0,calc(-50% + 18px),0);visibility:hidden}
+.cap.on{visibility:visible;pointer-events:auto}
+.cap.hero{top:auto;bottom:clamp(88px,13vh,140px);transform:translate3d(0,18px,0);max-width:44rem}
+.cap.end{top:auto;bottom:clamp(84px,12vh,130px);left:50%;text-align:center;transform:translate3d(-50%,18px,0);max-width:44rem}
+.cap.end .act,.cap.end .kicker{justify-content:center}
+.cap.end{padding:34px 44px 40px;background:radial-gradient(closest-side,rgba(7,9,11,.82),rgba(7,9,11,.55) 60%,transparent)}
+.cap.center{left:50%;text-align:center;transform:translate3d(-50%,calc(-50% + 18px),0);max-width:40rem}
+@media (max-width:820px){.cap,.cap.hero,.cap.center,.cap.end{left:var(--gut);right:var(--gut);top:auto;bottom:88px;max-width:none;text-align:left;transform:translate3d(0,18px,0)}}
+.kicker{display:flex;align-items:center;gap:16px;font:500 10px/1 var(--f);letter-spacing:.28em;text-transform:uppercase;margin:0 0 26px;color:#b5b9ba}
+.kicker::before{content:"";width:34px;height:1px;background:var(--brass)}
+.cap.center .kicker{justify-content:center}
+.t-local{color:var(--local)}.t-mask{color:var(--mask)}.t-held{color:var(--held)}.t-ghost{color:var(--ghost)}
+.cap h2{font:300 clamp(2rem,3.5vw,3.2rem)/1.05 var(--f);letter-spacing:-.022em;max-width:17ch;text-shadow:0 3px 30px rgba(0,0,0,.45)}
+.cap .big{font:300 clamp(2.6rem,6vw,5.4rem)/1 var(--f);letter-spacing:-.035em;text-shadow:0 3px 30px rgba(0,0,0,.45)}
+.cap .lede{margin-top:20px;color:#c1c4c6;font-size:16.5px;max-width:42ch;line-height:1.65}
+.cap.center .lede{margin-inline:auto}
+.cap .act{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap}
+.cap .chain{margin-top:26px;display:grid;gap:10px;font:500 10px/1.4 var(--f);letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.cap .chain span{display:flex;align-items:center;gap:12px;opacity:.25;transition:opacity .5s var(--ease),color .5s var(--ease)}
+.cap .chain span::before{content:"";width:18px;height:1px;background:currentColor}
+.cap .chain span.lit{opacity:1;color:var(--ink)}
+.cap .chain em{font-style:normal;color:var(--muted);letter-spacing:.18em}
+.cap .hint{margin-top:18px;font:500 9.5px/1.6 var(--f);letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.hud{position:fixed;z-index:13;left:var(--gut);right:var(--gut);bottom:calc(26px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+.hud .state{display:flex;align-items:center;gap:12px;font:500 9.5px/1 var(--f);letter-spacing:.26em;text-transform:uppercase;color:var(--muted)}
+.hud .state b{font-weight:500;color:var(--ink)}
+.hud .state i{width:6px;height:6px;display:block;background:var(--muted);transition:background-color .7s var(--ease)}
+.hud .progress{width:88px;height:1px;background:var(--hair);overflow:hidden}
+.hud .progress i{display:block;height:100%;background:var(--ink);transform:scaleX(0);transform-origin:left}
+@media (max-width:820px){.hud{display:none}}
+/* no WebGL, or reduced motion: the chapter reads as a list */
+.static-story #gl,.nogl #gl{display:none}
+.static-story .caps{position:relative;inset:auto;opacity:1;visibility:visible}
+.static-story #story{height:auto;padding:120px 0 40px;background:var(--bg)}
+.static-story .cap{position:relative;left:auto;top:auto;bottom:auto;right:auto;opacity:1;visibility:visible;transform:none;margin:0 var(--pad) 14vh;pointer-events:auto;max-width:36rem}
+.static-story .cap .chain span{opacity:1}
+.static-story .giant,.static-story .bars,.static-story .hud,.static-story .scrim{display:none}
+
+/* coordination: the clickable animation */
+#coord{position:fixed;inset:0;z-index:70;background:#0a0a0c;display:none;flex-direction:column}
+#coord.open{display:flex}
+#coord .bar{display:flex;justify-content:space-between;align-items:center;padding:22px var(--gut);border-bottom:1px solid var(--hair)}
+#coord .ttl{font:500 10px/1 var(--f);letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+#coord .stage{flex:1;display:grid;place-items:center;padding:24px var(--gut);min-height:0}
+#coord svg{width:100%;max-width:1100px;height:auto;max-height:100%}
+#coord .step{padding:0 var(--gut) 34px;text-align:center;min-height:92px}
+#coord .step b{display:block;font:300 clamp(1.3rem,2.4vw,2rem)/1.2 var(--f);letter-spacing:-.01em}
+#coord .step span{display:block;margin-top:8px;color:var(--muted);font-size:14.5px}
+#coord .dots{display:flex;gap:8px;justify-content:center;margin-top:16px}
+#coord .dots i{width:18px;height:1px;background:var(--hair-2);transition:background-color .4s}
+#coord .dots i.on{background:var(--ink)}
+.svg-t{font-family:"Hanken Grotesk",Arial,sans-serif;fill:#ecebe7}
+.svg-m{font-family:"JetBrains Mono",Consolas,monospace}
+
+/* ── how she decides ────────────────────── */
+.route{padding-block:140px 150px;border-top:1px solid var(--hair)}
+.route-grid{display:grid;gap:28px;margin-top:60px}
+@media (min-width:960px){.route-grid{grid-template-columns:minmax(0,.85fr) minmax(0,1.3fr);gap:44px}}
+.picks{display:grid;gap:10px;align-content:start;margin:0;padding:0;border:0;min-width:0}
+.picks legend{font:500 10px/1 var(--f);letter-spacing:.26em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding:0}
+.pick{text-align:left;font:400 .85rem/1.5 var(--f-mono);color:var(--ink);background:var(--bg-2);border:1px solid var(--hair);border-radius:4px;padding:17px 18px;cursor:pointer;display:flex;gap:12px;align-items:flex-start;width:100%;transition:border-color .3s,background-color .3s}
+.pick:hover{border-color:var(--hair-2)}
+.pick[aria-pressed=true]{border-color:var(--ink);background:var(--bg-3)}
+.pick .dot{margin-top:6px}
+.trace{position:relative;background:linear-gradient(180deg,var(--bg-2),var(--bg));border:1px solid var(--hair);border-radius:6px;padding:30px;min-width:0;box-shadow:0 30px 90px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.04)}
+.trace .edge{position:absolute;left:30px;width:56px;top:-1px;height:1px}
+.trace[data-route=here] .edge{background:var(--local)}.trace[data-route=sent] .edge{background:var(--mask)}.trace[data-route=held] .edge{background:var(--held)}
+.steps{list-style:none;margin:0;padding:0;counter-reset:step}
+.step{display:grid;grid-template-columns:2.25rem minmax(0,1fr);gap:4px 14px;padding-block:18px;border-bottom:1px solid var(--hair);transition:opacity .3s,transform .3s}
+.step:first-child{padding-top:0}
+.step::before{counter-increment:step;content:counter(step,decimal-leading-zero);font:400 .7rem/1 var(--f-mono);color:var(--muted);padding-top:5px;grid-row:span 3}
+.step h3{font-weight:400;font-size:1.05rem;letter-spacing:-.005em}
+.step p{font-size:1rem;color:var(--soft)}
+.step code{font:400 .72rem/1.4 var(--f-mono);color:var(--brass)}
+.trace.reveal .step{opacity:0;transform:translateY(5px)}
+.trace.reveal .step.in{opacity:1;transform:none}
+.out{padding-top:20px;display:grid;gap:10px}
+.out .a{font:400 .92rem/1.5 var(--f-mono);overflow-wrap:anywhere}
+.out .a::before{content:"→ ";color:var(--muted)}
+.note{font:400 .68rem/1.6 var(--f-mono);color:var(--muted);margin-top:22px}
+
+/* ── what she does ──────────────────────── */
+.does{padding-block:140px 150px;border-top:1px solid var(--hair)}
+.cols{display:grid;gap:0;margin-top:60px;border-top:1px solid var(--hair-2)}
+@media (min-width:960px){.cols{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.col{padding:34px 34px 34px 0;display:grid;gap:14px;align-content:start;min-width:0;position:relative}
+@media (min-width:960px){.col+.col{padding-left:34px;border-left:1px solid var(--hair)}}
+@media (max-width:959px){.col+.col{border-top:1px solid var(--hair)}}
+.col::before{content:"";position:absolute;top:-1px;left:0;width:56px;height:1px}
+@media (min-width:960px){.col+.col::before{left:34px}}
+.col.here::before{background:var(--local)}.col.sent::before{background:var(--mask)}.col.held::before{background:var(--held)}
+.col h3{font:500 11px/1 var(--f);letter-spacing:.28em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.col.here h3{color:var(--local)}.col.sent h3{color:var(--mask)}.col.held h3{color:var(--held)}
+.col > p{color:var(--soft);font-size:1rem}
+.col ul{list-style:none;margin:6px 0 0;padding:0}
+.col li{display:grid;grid-template-columns:16px 1fr;gap:12px;padding:9px 0;font-size:.98rem;color:var(--soft)}
+.col li::before{content:"";height:1px;background:var(--hair-2);margin-top:.85em}
+.col li .mono{font-size:.78rem;color:var(--muted)}
+.preview{margin-top:48px;display:grid;gap:20px}
+@media (min-width:960px){.preview{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.box{border:1px solid var(--hair);border-radius:6px;padding:28px;min-width:0;background:var(--bg-2)}
+.chip{display:inline-block;font:500 9.5px/1 var(--f);letter-spacing:.26em;text-transform:uppercase;border:1px solid var(--hair-2);color:var(--muted);border-radius:2px;padding:6px 9px}
+.box h3{font-weight:400;font-size:1.3rem;letter-spacing:-.01em;margin-top:16px}
+.box ul{margin:12px 0 0;padding-left:1.1em;font-size:.98rem;color:var(--soft)}
+.box li{margin-bottom:6px}
+.box p{font-size:.98rem;color:var(--soft);margin-top:12px}
+.box strong{color:var(--ink);font-weight:500}
+
+/* ── the line ───────────────────────────── */
+.line{padding-block:140px;border-top:1px solid var(--hair)}
+.truth{display:grid;gap:0;margin-top:56px;border-top:1px solid var(--hair-2)}
+@media (min-width:860px){.truth{grid-template-columns:1fr 1fr}}
+.truth > div{padding:34px 40px 34px 0}
+@media (min-width:860px){.truth > div+div{padding-left:40px;border-left:1px solid var(--hair)}}
+.truth h3{font:500 10.5px/1 var(--f);letter-spacing:.28em;text-transform:uppercase;margin-bottom:22px}
+.truth .yes h3{color:var(--local)}.truth .no h3{color:var(--held)}
+.truth ul{margin:0;padding:0;list-style:none;display:grid;gap:14px}
+.truth li{display:grid;grid-template-columns:16px 1fr;gap:14px;font-size:1.04rem;color:var(--soft)}
+.truth li::before{content:"";height:1px;margin-top:.85em}
+.truth .yes li::before{background:var(--local)}.truth .no li::before{background:var(--held)}
+.line .after{margin-top:40px;font-size:1.06rem;color:var(--soft);padding-left:20px;border-left:1px solid var(--brass)}
+.line .after b{color:var(--ink);font-weight:400}
+
+/* ── FAQ ────────────────────────────────── */
+.faq{padding-block:140px 150px;border-top:1px solid var(--hair)}
+.qs{margin-top:48px;max-width:56rem}
+.qs details{border-top:1px solid var(--hair)}
+.qs details:last-child{border-bottom:1px solid var(--hair)}
+.qs summary{cursor:pointer;list-style:none;font-weight:400;font-size:1.18rem;letter-spacing:-.005em;padding:24px 2.6rem 24px 0;position:relative}
+.qs summary::-webkit-details-marker{display:none}
+.qs summary::after{content:"+";position:absolute;right:0;top:50%;transform:translateY(-50%);font:300 1.3rem/1 var(--f);color:var(--muted)}
+.qs details[open] summary::after{content:"–"}
+.qs details p{padding-bottom:26px;color:var(--soft);font-size:1.02rem}
+
+/* ── close ──────────────────────────────── */
+.close{position:relative;padding-block:150px 0;border-top:1px solid var(--hair);overflow:hidden}
+.close .in{display:grid;gap:26px;justify-items:start;padding-bottom:110px}
+.close .big{font-weight:200;font-size:clamp(3rem,7.6vw,6.8rem);line-height:.92;letter-spacing:-.05em;max-width:12ch;margin-top:6px}
+.close .lede{margin-top:0}
+.close .big{max-width:14ch}
+.close .lede b{color:var(--ink);font-weight:400}
+.wl{width:100%;max-width:40rem;display:grid;gap:14px;margin-top:8px}
+.wl-row{display:flex;gap:10px;flex-wrap:wrap}
+.wl input[type=email]{flex:1 1 16rem;min-width:0;font:300 1.05rem/1.2 var(--f);color:var(--ink);background:var(--bg-2);border:1px solid var(--hair-2);border-radius:3px;padding:16px 18px}
+.wl input[type=email]::placeholder{color:var(--muted)}
+.wl input[type=email]:focus{outline:1px solid var(--ink);outline-offset:2px}
+.wl input[aria-invalid=true]{border-color:var(--held)}
+.wl .btn{flex:0 0 auto}
+.wl .btn[disabled]{opacity:.55;cursor:progress}
+.wl-trap{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.wl-ok{display:flex;gap:12px;align-items:flex-start;font-size:.95rem;color:var(--soft);cursor:pointer;max-width:56ch}
+.wl-ok input{width:18px;height:18px;margin:3px 0 0;flex:none;accent-color:var(--local)}
+.wl-ok a{color:var(--ink);text-underline-offset:3px}
+.wl-msg{min-height:1.6em;font-size:.98rem;color:var(--soft)}
+.wl-msg.good{color:var(--local)}.wl-msg.bad{color:var(--held)}
+.wl.done .wl-row,.wl.done .wl-ok{display:none}
+.plans{width:100%;display:grid;gap:12px;margin:0 0 6px;padding:0;border:0;min-width:0}
+@media (min-width:900px){.plans{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.plan{position:relative;display:grid;gap:14px;align-content:start;padding:24px 22px 24px 50px;border:1px solid var(--hair);border-radius:6px;background:var(--bg-2);cursor:pointer;transition:border-color .3s,background-color .3s}
+.plan:hover{border-color:var(--hair-2)}
+.plan input{position:absolute;left:20px;top:25px;width:18px;height:18px;margin:0;accent-color:var(--brass)}
+.plan:has(input:checked){border-color:var(--brass);background:var(--bg-3)}
+.plan:has(input:focus-visible){outline:1px solid var(--ink);outline-offset:3px}
+.pt{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.pn{font:500 11px/1 var(--f);letter-spacing:.28em;text-transform:uppercase}
+.pnote{font:500 9.5px/1 var(--f);letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.amt{font:200 3.2rem/1 var(--f);letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.amt small{font:300 .9rem var(--f);letter-spacing:.01em;color:var(--muted);margin-left:10px}
+.pl{display:grid;gap:9px;color:var(--soft);font-size:.95rem}
+.pl span{display:grid;grid-template-columns:14px 1fr;gap:10px}
+.pl span::before{content:"";height:1px;background:var(--hair-2);margin-top:.85em}
+.wl{max-width:none}
+.wl-row{max-width:40rem}
+.close .fine{font-size:.92rem;color:var(--muted);max-width:66ch}
+.close .stripes{height:130px;margin:0 -10%;transform:rotate(-4deg) translateY(28px);filter:blur(16px);opacity:.38}
+footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid var(--hair);padding-left:var(--gl);padding-right:var(--gr);padding-block:34px calc(46px + env(safe-area-inset-bottom,0px))}
+.foot{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font:500 9.5px/1.8 var(--f);letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.foot p{max-width:70ch}
+.foot nav{display:flex;gap:8px}
+.foot a{color:var(--muted);text-decoration:none;display:inline-block;padding:6px 8px}
+.foot a:hover{color:var(--ink)}
+
+@media (prefers-reduced-motion:no-preference){.shot .stripes{animation:slide 20s ease-in-out infinite alternate}}
+@keyframes slide{to{transform:translateY(-50%) rotate(-12deg) translateX(-6%)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:0s!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="scrim" aria-hidden="true"></div>
+<div class="bars" aria-hidden="true"></div>
+<div class="giant" aria-hidden="true"><span data-a="0" data-b=".34">Copy. Paste.</span><span data-a=".34" data-b=".6">Friday</span><span data-a=".6" data-b=".735">Just say it</span><span data-a=".735" data-b=".985">On your PC</span></div>
+<div class="hud" aria-hidden="true"><div class="state"><i id="st-dot"></i><span>Chapter</span><b id="st-txt">Today</b></div><div class="progress"><i id="prog"></i></div></div>
+
+<header>
+  <div class="inner nav">
+    <a class="brand" href="#top" aria-label="Friday, home"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>Friday</a>
+    <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links">Menu</button>
+    <ul class="links" id="nav-links">
+      <li><a href="#story-start">The room</a></li>
+      <li><a href="#route">How she decides</a></li>
+      <li><a href="#does">What she does</a></li>
+      <li><a href="#line">What's true</a></li>
+      <li><a href="#preview">Pre-order</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="main">
+<div id="top"></div>
+<section class="open" id="open" aria-label="A question">
+  <div class="stage">
+    <div class="glow" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="lines">
+      <p class="ol sm">Before anything else</p>
+      <p class="ol first">What did your AI <i>send</i> today?</p>
+      <p class="ol">Your names. Your numbers. <span class="dim">Your files.</span></p>
+      <p class="ol">Most assistants <i>can't</i> tell you.</p>
+      <p class="ol">Friday can. <span class="dim">Every time.</span></p>
+    </div>
+    <div class="skipline"><span class="cue" aria-hidden="true"><i></i>Scroll</span><a class="skip-intro" href="#hero">Skip the intro</a></div>
+  </div>
+</section>
+
+<div class="band hero-band" id="hero">
+  <div class="grain" aria-hidden="true"></div>
+  <section class="inner hero" aria-labelledby="hero-h">
+    <div>
+      <p class="kick">Windows assistant · private preview</p>
+      <h1 id="hero-h">Every answer, a <i>receipt.</i></h1>
+      <p class="sub">Friday runs on your PC and uses <b>the Claude, Codex or Gemini CLI you're already signed into</b>. Easy things she answers herself. Hard ones go out with names and numbers hidden. Some things she won't send at all. Under every reply, she tells you which.</p>
+      <div class="ctas">
+        <a class="btn solid" href="#preview" data-plan="trial">Get the free trial</a>
+        <a class="btn" href="#story-start">See the room</a>
+      </div>
+      <p class="reqs">Free for 14 days, then $8 a month or $39 once · download opens at launch · Windows 10/11</p>
+    </div>
+    <figure class="shot" style="margin:0" aria-labelledby="shot-cap">
+      <div class="stripes" aria-hidden="true"><i></i><i></i><i></i></div>
+      <figcaption class="cap2" id="shot-cap"><span>Recorded replies from the demo script</span><span>Not a live connection</span></figcaption>
+      <div class="cards" id="cards">
+        <div class="card here"><span class="q">remind me to call Anita at 8</span><span class="a">I'll remind you to call Anita today at 8:00 pm.</span><span><span class="tag here"><i class="dot here"></i><span>local — never left this machine</span></span></span></div>
+        <div class="card sent"><span class="q">draft a message to Anita about tomorrow's appointment</span><span class="a">"Hi Anita, just confirming…"</span><span><span class="tag sent"><i class="dot sent"></i><span>claude · 2 identifiers hidden (PERSON, PHONE)</span></span></span></div>
+        <div class="card held"><span class="q">my aadhaar is 1234 5678 9012, what do I do about the mismatch</span><span class="a">I'm not sending that anywhere, so I'll answer from here.</span><span><span class="tag held"><i class="dot held"></i><span>local · withheld — an AADHAAR was present</span></span></span></div>
+      </div>
+    </figure>
+  </section>
+</div>
+
+<div id="story-start"></div>
+<div id="story" role="region" aria-label="The room: how Friday changes your desk, told in scroll">
+  <p class="room-wait">Loading the room · <a href="#route">Skip to how she decides</a></p>
+  <div class="caps">
+    <section class="cap hero" data-a="0" data-b=".085">
+      <p class="kicker">Chapter one · Today</p>
+      <h2>This is how most people use AI today.</h2>
+      <p class="lede">Four assistants, four windows, and you in the middle. Keep scrolling.</p>
+    </section>
+    <section class="cap" data-a=".10" data-b=".18">
+      <p class="kicker">Today</p>
+      <h2>Copy. Paste. Explain it again.</h2>
+      <p class="lede">Every window starts from zero. You carry the context from one to the next, by hand.</p>
+    </section>
+    <section class="cap" data-a=".19" data-b=".26">
+      <p class="kicker">Today</p>
+      <h2>Four tabs. Four memories. None shared.</h2>
+      <p class="lede">Each assistant remembers its own conversation and nothing else. Your project lives in your head.</p>
+    </section>
+    <section class="cap" data-a=".27" data-b=".335">
+      <p class="kicker">Today</p>
+      <h2>And none of them can touch your PC.</h2>
+      <p class="lede">They tell you how. You still open the app, find the file and do the clicking.</p>
+    </section>
+    <section class="cap center" data-a=".345" data-b=".395">
+      <p class="big">Without Friday, this is every day.</p>
+    </section>
+    <section class="cap" data-a=".405" data-b=".575">
+      <p class="kicker t-ghost">Connect</p>
+      <h2>Friday connects them. One after another.</h2>
+      <p class="lede">She uses the sign-ins you already have. No new accounts with us.</p>
+      <div class="chain" id="links">
+        <span data-i="0">ChatGPT <em>through Codex</em></span>
+        <span data-i="1">Claude <em>through Claude Code</em></span>
+        <span data-i="2">Gemini <em>through Gemini CLI</em></span>
+        <span data-i="3">Grok <em>with your xAI API key</em></span>
+      </div>
+    </section>
+    <section class="cap" data-a=".625" data-b=".725">
+      <p class="kicker t-local">Talk</p>
+      <h2>Now you just say it.</h2>
+      <p class="lede">Friday sits over the models you already use. Speak, and she picks the model, strips your names on the way out, and brings back one answer.</p>
+      <div class="act"><button class="btn solid btn-sm" type="button" data-coord><i class="play"></i>Watch her coordinate</button></div>
+      <p class="hint">An animation of how it works, not a recording</p>
+    </section>
+    <section class="cap" data-a=".74" data-b=".80">
+      <p class="kicker t-ghost">Feature</p>
+      <h2>Work through code, out loud.</h2>
+      <p class="lede">Ask her to write, explain or debug code by voice. When she runs code, it runs in a locked sandbox, and anything beyond safe waits for you to say "confirm".</p>
+    </section>
+    <section class="cap" data-a=".81" data-b=".865">
+      <p class="kicker t-ghost">Feature</p>
+      <h2>Hard questions get every opinion.</h2>
+      <p class="lede">She can ask each model you're signed into, then combine the best answer. The receipt tells you who answered.</p>
+    </section>
+    <section class="cap" data-a=".875" data-b=".925">
+      <p class="kicker t-mask">Feature</p>
+      <h2>Your names stay yours.</h2>
+      <p class="lede">Names, phone numbers and emails become placeholders before anything leaves, and turn back into names when the answer comes home.</p>
+    </section>
+    <section class="cap" data-a=".935" data-b=".975">
+      <p class="kicker t-held">Feature</p>
+      <h2>Government IDs never leave.</h2>
+      <p class="lede">Aadhaar, PAN, passport and card numbers aren't sent anywhere, not even masked. Reminders, apps and files run on your PC for zero tokens.</p>
+    </section>
+    <section class="cap end" data-a=".982" data-b="1.2">
+      <p class="kicker">Friday</p>
+      <h2>That's the room. Here's how she decides.</h2>
+      <div class="act"><a class="btn solid" href="#route">How she decides</a><button class="btn" type="button" data-coord><i class="play"></i>Watch her coordinate</button></div>
+    </section>
+  </div>
+</div>
+<div id="details" hidden></div>
+
+<div class="band">
+  <section class="inner route" id="route" aria-labelledby="route-h">
+    <p class="kick">How she decides</p>
+    <h2 class="h2" id="route-h">Pick a question. Watch where it <i>goes.</i></h2>
+    <p class="lede">Before anything leaves your PC, Friday asks four things. These are the four exchanges from the recorded demo.</p>
+    <div class="route-grid">
+      <fieldset class="picks">
+        <legend>Questions</legend>
+        <button class="pick" type="button" data-i="0" aria-pressed="true"><i class="dot here" aria-hidden="true"></i><span>what time is it</span></button>
+        <button class="pick" type="button" data-i="1" aria-pressed="false"><i class="dot here" aria-hidden="true"></i><span>remind me to call Anita at 8</span></button>
+        <button class="pick" type="button" data-i="2" aria-pressed="false"><i class="dot sent" aria-hidden="true"></i><span>draft a message to Anita about tomorrow's appointment</span></button>
+        <button class="pick" type="button" data-i="3" aria-pressed="false"><i class="dot held" aria-hidden="true"></i><span>my aadhaar is 1234 5678 9012, what do I do about the mismatch</span></button>
+      </fieldset>
+      <div class="trace" id="trace" data-route="here" aria-live="polite">
+        <span class="edge" aria-hidden="true"></span>
+        <ol class="steps" id="steps"></ol>
+        <div class="out"><span class="a" id="t-a"></span><span><span class="tag" id="t-tag"></span></span></div>
+        <p class="note">Replies are verbatim from the recorded demo script. The Aadhaar number is the demo number, not a real one.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="band">
+  <section class="inner does" id="does" aria-labelledby="does-h">
+    <p class="kick">What she does today</p>
+    <h2 class="h2" id="does-h">Sorted by where the answer <i>comes from.</i></h2>
+    <p class="lede">Everything in these three columns is checked by an automated test on every build. That proves it routes correctly. It isn't the same as a stranger using it on their own laptop, which is what the preview is for.</p>
+    <div class="cols">
+      <div class="col here">
+        <h3><i class="dot here" aria-hidden="true"></i>Here</h3>
+        <p>Answered on your PC. The network isn't touched and no tokens are spent.</p>
+        <ul>
+          <li>Timers, alarms and reminders</li>
+          <li><span>Notes and lists <span class="mono">"add milk to my shopping list"</span></span></li>
+          <li>Volume, screenshots, opening apps</li>
+          <li>Exact maths, solved before any model is asked</li>
+          <li>"How much have you used today?"</li>
+          <li>"Are you ready?" She checks she can reach a model</li>
+        </ul>
+      </div>
+      <div class="col sent">
+        <h3><i class="dot sent" aria-hidden="true"></i>Sent</h3>
+        <p>Writing, explaining and hard questions go to the CLI you're signed into, billed to your plan.</p>
+        <ul>
+          <li>Names from your contacts, phone numbers, emails and card numbers become placeholders first</li>
+          <li>They're restored on your PC when the reply comes back</li>
+          <li>The receipt says how many were hidden and of what kind</li>
+          <li>One CLI is enough: Claude Code, Codex or Gemini</li>
+        </ul>
+      </div>
+      <div class="col held">
+        <h3><i class="dot held" aria-hidden="true"></i>Not sent</h3>
+        <p>On the default setting, some things never leave, even masked.</p>
+        <ul>
+          <li>Aadhaar, PAN and passport numbers</li>
+          <li>Card numbers, IFSC and GSTIN</li>
+          <li>She answers from here instead, and says why</li>
+          <li><span><span class="mono">sealed</span> mode keeps anything personal at home</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="preview">
+      <div class="box">
+        <span class="chip">In preview</span>
+        <h3>Built, not yet checked end to end</h3>
+        <ul>
+          <li>Voice, woken by "hey Friday"</li>
+          <li>Reading what's on your screen, on-device</li>
+          <li>Browser actions, with your approval for clicks and typing</li>
+          <li>Cross-checking hard questions when two or more CLIs are signed in</li>
+          <li>Home Assistant devices, once you connect it</li>
+        </ul>
+      </div>
+      <div class="box">
+        <span class="chip">Not yet</span>
+        <h3>Checking that an action worked</h3>
+        <p>Friday can check an action's result against what she expected <strong>for 2 of her 78 actions</strong> today. For the rest she reports what she did, not that it worked. A small true number beats a big rounded one.</p>
+        <p>Anything that changes your system, like closing apps or typing for you, waits for your approval. Running shell commands is off unless you turn it on.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="band">
+  <section class="inner line" id="line" aria-labelledby="line-h">
+    <p class="kick">The line</p>
+    <h2 class="h2" id="line-h">What's true, written down so you can <i>hold us to it.</i></h2>
+    <div class="truth">
+      <div class="yes">
+        <h3>True</h3>
+        <ul>
+          <li>Her memory lives on your machine, in your files.</li>
+          <li>Easy questions never leave it.</li>
+          <li>Identifiers are stripped before anything goes out.</li>
+          <li>Government and financial IDs are never sent, even masked.</li>
+          <li>Every answer says where it came from.</li>
+        </ul>
+      </div>
+      <div class="no">
+        <h3>We will never claim</h3>
+        <ul>
+          <li>That nothing leaves your computer. Hard questions do leave; that's what frontier models are for.</li>
+          <li>That the model can't tell who you're talking about. Masking catches patterns and names you saved, not meaning.</li>
+          <li>That she knows more than the model she calls. For knowledge, she is that model.</li>
+          <li>That she works without a model. Without one she's a timers, notes and desktop-control app, and says so.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="after">An example of the limit: <b>"the patient with the limp who runs the bakery on Fourth Street"</b> goes out intact. There's no name or number in it to catch. If something must not be seen at all, don't send it, or switch to sealed mode.</p>
+  </section>
+</div>
+
+<div class="band">
+  <section class="inner checks" id="checks" aria-labelledby="checks-h">
+    <p class="kick">How we check</p>
+    <h2 class="h2" id="checks-h">22 checks run on every change to the <i>code.</i></h2>
+    <p class="lede">Four gates stand between Friday and anyone who buys her. The test suite runs them on every push, and a single failure turns the build red. This is every check, as it ran on 4 November 2026.</p>
+    <div class="gates">
+      <div class="gate">
+        <div class="gh"><h3>Installs</h3><span class="pass">7 / 7 pass</span></div>
+        <p class="why">An installer once said "environment ready" over 2 of 41 packages.</p>
+        <ul><li>an interrupted install is not 'ready'</li><li>the installer carries the product name</li><li>the GPU decision is defensible</li><li>a finished install is 'ready'</li><li>every launch entry point exists</li><li>every requirement line parses</li><li>she admits when she cannot answer</li></ul>
+      </div>
+      <div class="gate">
+        <div class="gh"><h3>Honest</h3><span class="pass">4 / 4 pass</span></div>
+        <p class="why">This page is scanned for false privacy claims before it can ship.</p>
+        <ul><li>no shipped document makes a false privacy claim</li><li>an unknown provider is never called 'local'</li><li>a cloud answer admits it left</li><li>usage reports spend, never a balance</li></ul>
+      </div>
+      <div class="gate">
+        <div class="gh"><h3>Useful</h3><span class="pass">5 / 5 pass</span></div>
+        <p class="why">Three everyday asks once silently did the wrong thing.</p>
+        <ul><li>every day-one ask reaches exactly one skill</li><li>every routed skill is registered</li><li>she asks rather than inventing a time</li><li>her own name is not a command</li><li>she wakes to her name, not to conversation</li></ul>
+      </div>
+      <div class="gate">
+        <div class="gh"><h3>Safe</h3><span class="pass">6 / 6 pass</span></div>
+        <p class="why">A second, ungoverned way to run shell commands existed for months. It's gone.</p>
+        <ul><li>the shell has exactly one governed door</li><li>no action alias reaches a shell</li><li>identifiers are stripped and restored</li><li>government IDs are never sent</li><li>the registry shields every cloud provider</li><li>no pickle / eval / exec / yaml.load</li></ul>
+      </div>
+    </div>
+    <p class="after"><b>What these don't prove:</b> that she installs cleanly on your laptop. Automated checks can't see your antivirus or your setup. Watching people install her on their own machines is the next step before any sale.</p>
+  </section>
+</div>
+
+<div class="band">
+  <section class="inner faq" id="faq" aria-labelledby="faq-h">
+    <p class="kick">Questions</p>
+    <h2 class="h2" id="faq-h">Questions people <i>actually ask.</i></h2>
+    <div class="qs">
+      <details><summary>Isn't this what ChatGPT already does?</summary><p>For knowledge, yes, and Friday is no smarter than the model she calls. What's different is that she can act on your PC, answers the ordinary things without spending your tokens, and tells you what she sent. If you want a better chatbot, this isn't it.</p></details>
+      <details><summary>Do I need all three subscriptions?</summary><p>No. One signed-in CLI is enough and she works completely on it. With two or three she can cross-check the occasional hard question.</p></details>
+      <details><summary>Will she eat my usage?</summary><p>Most of what people ask an assistant never reaches a model: timers, reminders, notes and desktop control are answered on your PC. Ask "how much have you used today?" and she tells you what she sent. She can't see how much of your plan is left; that's your provider's number.</p></details>
+      <details><summary>Is the microphone always on?</summary><p>No. Listening is off until you turn it on.</p></details>
+      <details><summary>What if I'm not signed in to anything?</summary><p>She tells you in the first minute and names the one thing to do. Until then she still handles timers, reminders, notes and desktop control.</p></details>
+      <details><summary>Is it a subscription?</summary><p>Your choice. The planned prices are $8 a month, which keeps you on the latest version including major ones, or $39 once for version 1.x to keep, with every 1.x update and all bug and security fixes. Either way there's a 7-day refund on your first payment, and monthly keeps working until the end of the month you paid for.</p></details>
+      <details><summary>When can I get it?</summary><p>When the private preview ends. Pre-order the free trial or a plan now, with nothing to pay, and you'll get one email when it's ready. Then we delete your address.</p></details>
+      <details><summary>What happens after the free trial?</summary><p>For 14 days she does everything. After that, if no key has been entered, she stops answering and tells you why, rather than quietly doing less.</p></details>
+    </div>
+  </section>
+</div>
+
+<div class="band">
+  <section class="inner close" id="preview" aria-labelledby="preview-h">
+    <div class="in">
+      <p class="kick">Pre-order</p>
+      <h2 class="big" id="preview-h">Try her free for 14 days. Or pre‑order a <i>plan.</i></h2>
+      <p class="lede">Friday is in private preview, so there's no download yet. Pick what you want and leave your email: we'll send <b>one message</b> when it's ready, then delete your address. <b>Nothing to pay now.</b></p>
+
+      <form class="wl" id="wl" action="/api/waitlist" method="post" novalidate>
+        <fieldset class="plans">
+          <legend class="sr">Choose an option</legend>
+          <label class="plan">
+            <input type="radio" name="plan" value="trial" checked>
+            <span class="pt"><span class="pn">Free trial</span><span class="pnote">14 days</span></span>
+            <span class="amt">$0<small>no card</small></span>
+            <span class="pl"><span>The whole product, nothing held back</span><span>Runs on your PC from the first minute</span><span>Then pick a plan, or she stops answering and tells you why</span></span>
+          </label>
+          <label class="plan">
+            <input type="radio" name="plan" value="monthly">
+            <span class="pt"><span class="pn">Monthly</span><span class="pnote">planned</span></span>
+            <span class="amt">$8<small>per month</small></span>
+            <span class="pl"><span>Always the latest version</span><span>New features as they ship</span><span>Major versions included</span><span>Cancel any time</span></span>
+          </label>
+          <label class="plan">
+            <input type="radio" name="plan" value="forever">
+            <span class="pt"><span class="pn">Forever</span><span class="pnote">planned</span></span>
+            <span class="amt">$39<small>once</small></span>
+            <span class="pl"><span>Version 1.x, yours to keep</span><span>Every 1.x update included</span><span>Bug and security fixes, always free</span><span>Version 2.0 is a discounted upgrade</span></span>
+          </label>
+        </fieldset>
+        <div class="wl-row">
+          <label class="sr" for="wl-email">Email address</label>
+          <input id="wl-email" name="email" type="email" inputmode="email" autocomplete="email" required maxlength="254" placeholder="you@example.com" aria-describedby="wl-msg">
+          <button class="btn solid" type="submit" id="wl-go">Pre-order · nothing to pay</button>
+        </div>
+        <div class="wl-trap" aria-hidden="true"><label for="wl-site">Leave this empty</label><input id="wl-site" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+        <label class="wl-ok" for="wl-consent"><input id="wl-consent" name="consent" type="checkbox" required> <span>Email me once when it's ready. I've read <a href="privacy.html">what you keep and for how long</a>.</span></label>
+        <p class="wl-msg" id="wl-msg" role="status" aria-live="polite"></p>
+      </form>
+      <p class="fine">Planned prices; checkout opens at launch. 7-day refund on your first payment, either plan. Needs Windows 10 or 11, Python 3.9 or newer, and one of Claude Code, Codex or Gemini CLI, signed in.</p>
+      <span class="tag here"><i class="dot here"></i><span>this page · no trackers, no cookies, no third-party requests</span></span>
+    </div>
+    <div class="stripes" aria-hidden="true"><i></i><i></i><i></i></div>
+  </section>
+</div>
+</main>
+
+<div id="coord" role="dialog" aria-modal="true" aria-labelledby="coord-ttl" aria-hidden="true">
+  <div class="bar"><span class="ttl" id="coord-ttl">How Friday handles one hard question · animation</span><button class="btn btn-sm" type="button" id="coord-x">Close</button></div>
+  <div class="stage">
+    <svg viewBox="0 0 1100 520" id="csvg" role="img" aria-label="Animation: your question is masked, sent to three models, answered, combined, and your names are restored on your PC.">
+      <rect x="20" y="40" width="560" height="440" fill="none" stroke="rgba(236,235,231,.14)" stroke-dasharray="3 6"/>
+      <text x="36" y="66" class="svg-t" font-size="11" letter-spacing="3" fill="#8b8d95">YOUR PC</text>
+      <text x="1064" y="66" class="svg-t" font-size="11" letter-spacing="3" fill="#8b8d95" text-anchor="end">THE CLOUD</text>
+      <g id="n-you"><circle cx="110" cy="260" r="34" fill="none" stroke="rgba(236,235,231,.5)"/><text x="110" y="264" class="svg-t" font-size="12" letter-spacing="2" text-anchor="middle">YOU</text></g>
+      <g id="n-fri"><rect x="380" y="200" width="150" height="120" fill="#101014" stroke="rgba(236,235,231,.6)"/><text x="455" y="266" class="svg-t" font-size="13" letter-spacing="5" text-anchor="middle">FRIDAY</text></g>
+      <g id="n-m0"><rect x="800" y="110" width="240" height="56" fill="#101014" stroke="rgba(236,235,231,.35)"/><text x="820" y="143" class="svg-t" font-size="14">Claude</text><text x="1024" y="143" class="svg-t svg-m" font-size="11" fill="#8b8d95" text-anchor="end" id="m0s">idle</text></g>
+      <g id="n-m1"><rect x="800" y="200" width="240" height="56" fill="#101014" stroke="rgba(236,235,231,.35)"/><text x="820" y="233" class="svg-t" font-size="14">ChatGPT</text><text x="1024" y="233" class="svg-t svg-m" font-size="11" fill="#8b8d95" text-anchor="end" id="m1s">idle</text></g>
+      <g id="n-m2"><rect x="800" y="290" width="240" height="56" fill="#101014" stroke="rgba(236,235,231,.35)"/><text x="820" y="323" class="svg-t" font-size="14">Gemini</text><text x="1024" y="323" class="svg-t svg-m" font-size="11" fill="#8b8d95" text-anchor="end" id="m2s">idle</text></g>
+      <g id="n-m3" opacity=".45"><rect x="800" y="380" width="240" height="56" fill="none" stroke="rgba(236,235,231,.25)" stroke-dasharray="4 4"/><text x="820" y="413" class="svg-t" font-size="14">Grok</text><text x="1024" y="413" class="svg-t svg-m" font-size="10" fill="#8b8d95" text-anchor="end">with an API key</text></g>
+      <path id="w-you" d="M144 260 L380 260" stroke="rgba(236,235,231,.18)" fill="none"/>
+      <path id="w0" d="M530 240 C660 240 680 138 800 138" stroke="rgba(236,235,231,.18)" fill="none"/>
+      <path id="w1" d="M530 260 C660 260 680 228 800 228" stroke="rgba(236,235,231,.18)" fill="none"/>
+      <path id="w2" d="M530 280 C660 280 680 318 800 318" stroke="rgba(236,235,231,.18)" fill="none"/>
+      <g id="pk"></g>
+      <text id="q" x="300" y="130" class="svg-t svg-m" font-size="15" text-anchor="middle"></text>
+      <text id="qlbl" x="300" y="104" class="svg-t" font-size="10" letter-spacing="3" fill="#8b8d95" text-anchor="middle"></text>
+      <text id="rcpt" x="550" y="500" class="svg-t svg-m" font-size="13" fill="#a9c2b3" text-anchor="middle"></text>
+    </svg>
+  </div>
+  <div class="step" aria-live="polite"><b id="st-b"></b><span id="st-s"></span><div class="dots" id="st-d"></div></div>
+</div>
+
+<footer>
+  <div class="inner foot">
+    <p>Friday runs on your PC and uses the AI subscription you already pay for. Windows 10/11, one signed-in CLI. The room: person from the Microsoft Rocketbox Avatar Library (MIT), interior light from Poly Haven (CC0), three.js and Lenis (MIT).</p>
+    <nav aria-label="Legal"><a href="refund.html">Refunds</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></nav>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const doc = document.documentElement;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  /* menu */
+  const mb = $("#menu-btn"), links = $("#nav-links");
+  const closeMenu = () => { links.classList.remove("open"); mb.setAttribute("aria-expanded", "false"); };
+  mb.addEventListener("click", () => mb.setAttribute("aria-expanded", String(links.classList.toggle("open"))));
+  links.addEventListener("click", e => { if (e.target.closest("a")) closeMenu(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && links.classList.contains("open")) { closeMenu(); mb.focus(); } });
+
+  /* opening: each line takes its turn as you scroll; without script or with reduced motion they simply stack */
+  const open = $("#open"), lines = $$(".open .ol");
+  if (!reduce) {
+    doc.classList.add("seq");
+    const sm = lines[0], seq = lines.slice(1), n = seq.length;
+    const sstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+    const paint = () => {
+      const r = open.getBoundingClientRect(), tot = Math.max(1, open.offsetHeight - innerHeight);
+      const p = Math.max(0, Math.min(1, -r.top / tot));
+      sm.style.opacity = (1 - sstep(.85, .98, p)).toFixed(3);
+      seq.forEach((el, i) => {
+        const a = i / n, b = (i + 1) / n;
+        let o = i === 0 ? 1 - sstep(b - .07, b, p) : sstep(a, a + .07, p) * (1 - sstep(b - .07, b, p));
+        if (i === n - 1) o = sstep(a, a + .07, p);
+        el.classList.remove("first");
+        el.style.opacity = o.toFixed(3);
+        el.style.transform = "translate3d(0,calc(-50% + " + ((1 - o) * 22).toFixed(1) + "px),0)";
+      });
+    };
+    addEventListener("scroll", () => requestAnimationFrame(paint), { passive: true });
+    addEventListener("resize", paint); paint();
+  }
+
+  /* how she decides */
+  const EX = [
+    { a: "It's 4:12 pm.", route: "here", tag: "local — never left this machine",
+      steps: [["What is it?", "A question about the clock.", "skill · clock.now"], ["Can it be answered here?", "Yes. A local skill answers it.", ""],
+              ["Is anything private in it?", "Nothing to hide.", ""], ["Where does it go?", "Nowhere. It stays on this machine.", ""]] },
+    { a: "I'll remind you to call Anita today at 8:00 pm.", route: "here", tag: "local — never left this machine",
+      steps: [["What is it?", "A reminder, with a name and a time.", "skill · reminder.set"], ["Can it be answered here?", "Yes. Reminders are a local skill.", ""],
+              ["Is anything private in it?", "A name. Nothing is being sent, so nothing needs hiding.", ""], ["Where does it go?", "Nowhere. The reminder is stored on this machine.", ""]] },
+    { a: "\"Hi Anita, just confirming…\"", route: "sent", tag: "claude · 2 identifiers hidden (PERSON, PHONE)",
+      steps: [["What is it?", "A writing task about someone in your contacts.", ""], ["Can it be answered here?", "No. Writing well needs a frontier model.", "provider · claude CLI"],
+              ["Is anything private in it?", "Yes: a person and a phone number. Each becomes a placeholder like [[PERSON_1]] before sending, and is put back on your PC when the reply returns.", "shield · 2 replaced"],
+              ["Where does it go?", "Out, to the CLI you're signed into, billed to your plan.", ""]] },
+    { a: "I'm not sending that anywhere, so I'll answer from here.", route: "held", tag: "local · withheld — an AADHAAR was present",
+      steps: [["What is it?", "A question with an Aadhaar number in it.", ""], ["Can it be answered here?", "Partly. A frontier model would answer it better.", ""],
+              ["Is anything private in it?", "A government ID. The default policy never sends one, masked or not: a masked ID still tells the model one exists.", "policy · guarded"],
+              ["Where does it go?", "Nowhere. Withheld, and answered from here.", ""]] }
+  ];
+  const steps = $("#steps"), tA = $("#t-a"), tTag = $("#t-tag"), trace = $("#trace");
+  let timers = [];
+  function show(i) {
+    const ex = EX[i]; timers.forEach(clearTimeout); timers = [];
+    $$(".pick").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.i === i)));
+    trace.dataset.route = ex.route; steps.innerHTML = "";
+    for (const [h, p, c] of ex.steps) {
+      const li = document.createElement("li"); li.className = "step";
+      li.innerHTML = "<h3></h3><p></p>" + (c ? "<code></code>" : "");
+      li.querySelector("h3").textContent = h; li.querySelector("p").textContent = p;
+      if (c) li.querySelector("code").textContent = c;
+      steps.appendChild(li);
+    }
+    tA.textContent = ex.a;
+    tTag.className = "tag " + ex.route; tTag.innerHTML = '<i class="dot ' + ex.route + '"></i><span></span>'; tTag.lastChild.textContent = ex.tag;
+    if (!reduce && trace.dataset.ready) {
+      trace.classList.add("reveal");
+      $$(".step", steps).forEach((li, k) => timers.push(setTimeout(() => li.classList.add("in"), 90 * k + 30)));
+      timers.push(setTimeout(() => trace.classList.remove("reveal"), 90 * ex.steps.length + 340));
+    }
+    trace.dataset.ready = "1";
+  }
+  $$(".pick").forEach(b => b.addEventListener("click", () => show(+b.dataset.i)));
+  show(0);
+
+  /* waitlist: JSON post to our own Cloudflare function; plain form post still works without script */
+  const wl = $("#wl"), em = $("#wl-email"), ok = $("#wl-consent"), msg = $("#wl-msg"), go = $("#wl-go");
+  const say = (text, kind) => { msg.textContent = text; msg.className = "wl-msg " + (kind || ""); };
+  wl.addEventListener("submit", async e => {
+    e.preventDefault();
+    em.removeAttribute("aria-invalid");
+    if (!em.value.trim() || !em.checkValidity()) { em.setAttribute("aria-invalid", "true"); say("That doesn't look like an email address. Check it and try again.", "bad"); em.focus(); return; }
+    if (!ok.checked) { say("Tick the box to agree to one email at launch.", "bad"); ok.focus(); return; }
+    go.disabled = true; say("Saving…");
+    try {
+      const r = await fetch(wl.action, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ email: em.value, consent: true, plan: (wl.querySelector("input[name=plan]:checked") || {}).value || "trial", website: $("#wl-site").value }) });
+      const data = await r.json();
+      if (r.ok && data.ok) { wl.classList.add("done"); say(data.message, "good"); }
+      else { say(data.message || "Couldn't save that, and nothing was stored. Try again in a minute.", "bad"); }
+    } catch { say("Couldn't reach the waitlist, so nothing was stored. Try again in a minute.", "bad"); }
+    go.disabled = false;
+  });
+
+  /* "Get the free trial" (and any data-plan link): pick that option, then put the cursor in the email box */
+  $$("a[data-plan]").forEach(a => a.addEventListener("click", () => {
+    const r = wl.querySelector("input[name=plan][value=" + a.dataset.plan + "]"); if (r) r.checked = true;
+    setTimeout(() => em.focus({ preventScroll: true }), 1200);
+  }));
+
+  /* hero: the three recorded replies take turns */
+  const cards = $$("#cards .card");
+  if (!reduce && "IntersectionObserver" in window) {
+    let k = 0, t = null;
+    const tick = () => { cards.forEach((c, j) => c.classList.toggle("now", j === k)); k = (k + 1) % cards.length; };
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !t) { tick(); t = setInterval(tick, 2600); }
+      else if (!e.isIntersecting && t) { clearInterval(t); t = null; }
+    }, { threshold: .3 }).observe($("#cards"));
+  }
+})();
+</script>
+<script>
+/* The room (three.js r128, Lenis, the person and light maps: ~3.4 MB, all self-hosted) is NOT on the first
+   screen's critical path. It starts downloading once the first screen has painted and the browser is idle,
+   or sooner if the visitor heads for it. If it can't start (no WebGL, a blocked or failed script, a very
+   slow link), the chapter becomes a readable list instead of a long empty scroll. */
+(function(){
+  var d=document.documentElement,started=false,done=false;
+  var SRC=["vendor/three.min.js","vendor/libs/fflate.min.js","vendor/loaders/EXRLoader.js","vendor/loaders/GLTFLoader.js",
+    "vendor/shaders/CopyShader.js","vendor/shaders/LuminosityHighPassShader.js","vendor/shaders/SAOShader.js","vendor/shaders/DepthLimitedBlurShader.js",
+    "vendor/shaders/UnpackDepthRGBAShader.js","vendor/shaders/VignetteShader.js","vendor/shaders/GammaCorrectionShader.js","vendor/shaders/FXAAShader.js",
+    "vendor/shaders/BokehShader.js","vendor/shaders/SMAAShader.js","vendor/postprocessing/EffectComposer.js","vendor/postprocessing/MaskPass.js",
+    "vendor/postprocessing/RenderPass.js","vendor/postprocessing/ShaderPass.js","vendor/postprocessing/SAOPass.js","vendor/postprocessing/UnrealBloomPass.js",
+    "vendor/postprocessing/BokehPass.js","vendor/postprocessing/SMAAPass.js","vendor/lenis.min.js","story/assets.js","story/engine.js"];
+  function asList(){if(window.__fridayP||d.classList.contains('static-story'))return;done=true;d.classList.remove('room-loading');d.classList.add('static-story');
+    [].forEach.call(document.querySelectorAll('.cap'),function(c){c.style.opacity='';c.style.transform='';});
+    [].forEach.call(document.querySelectorAll('#links span'),function(s){s.classList.add('lit');});}
+  function load(){if(started)return;started=true;d.classList.add('room-loading');
+    var left=SRC.length;
+    SRC.forEach(function(src){var s=document.createElement('script');s.src=src;s.async=false;   /* parallel download, in-order execution */
+      s.onload=function(){if(--left===0){done=true;d.classList.remove('room-loading');setTimeout(function(){if(!window.__fridayP)asList();},1500);}};
+      s.onerror=asList;document.body.appendChild(s);});
+    setTimeout(function(){if(!done)asList();},25000);}
+  function idle(){(window.requestIdleCallback||function(f){setTimeout(f,1200);})(load,{timeout:3000});}
+  if(document.readyState==='complete')idle();else addEventListener('load',idle);
+  if('IntersectionObserver' in window)new IntersectionObserver(function(es){if(es[0].isIntersecting)load();},{rootMargin:'150% 0px'}).observe(document.getElementById('story-start'));
+})();
+</script>
+</body>
+</html>

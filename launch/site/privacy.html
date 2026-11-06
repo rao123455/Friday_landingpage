@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Friday — Privacy</title>
+<style>@font-face{font-family:"Bricolage Grotesque";src:url(fonts/bricolage.woff2) format("woff2");font-weight:200 800;font-display:swap}@font-face{font-family:"Newsreader";src:url(fonts/newsreader-400.woff2) format("woff2");font-weight:400;font-display:swap}@font-face{font-family:"Newsreader";src:url(fonts/newsreader-500.woff2) format("woff2");font-weight:500;font-display:swap}@font-face{font-family:"JetBrains Mono";src:url(fonts/jbm-400.woff2) format("woff2");font-weight:400;font-display:swap}@font-face{font-family:"JetBrains Mono";src:url(fonts/jbm-600.woff2) format("woff2");font-weight:600;font-display:swap}</style>
+<style>
+  :root{
+    --ground:#eceff0; --surface:#f7f9f9; --ink:#0f1614;
+    --muted:#586a66; --rule:#c6d2cf; --rule-soft:#dbe3e1;
+    --local:#0a5b51; --local-wash:#d4e7e2;
+    --flag:#871d2f; --flag-wash:#f1d9dd;
+    --f-display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+    --f-body:"Newsreader",Georgia,serif;
+    --f-data:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    --measure:66ch;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --ground:#0c1211; --surface:#141c1b; --ink:#e9efed; --muted:#8fa19d;
+    --rule:#283432; --rule-soft:#1d2726; --local:#5fd2bf; --local-wash:#0f3230;
+    --flag:#f0879a; --flag-wash:#3b1920;}}
+  :root[data-theme="dark"]{
+    --ground:#0c1211; --surface:#141c1b; --ink:#e9efed; --muted:#8fa19d;
+    --rule:#283432; --rule-soft:#1d2726; --local:#5fd2bf; --local-wash:#0f3230;
+    --flag:#f0879a; --flag-wash:#3b1920;}
+  *{box-sizing:border-box}
+  body{background:var(--ground);color:var(--ink);font-family:var(--f-body);
+       font-size:17px;line-height:1.6;margin:0}
+  .wrap{max-width:46rem;margin:0 auto;padding-inline:20px;padding-block:40px 64px}
+  p,li{max-width:var(--measure)}
+  a{color:var(--local);text-underline-offset:2px}
+  .back{font-family:var(--f-data);font-size:11px;letter-spacing:.18em;
+        text-transform:uppercase;color:var(--muted);text-decoration:none;
+        display:inline-block;margin-bottom:26px}
+  h1{font-family:var(--f-display);font-weight:800;
+     font-size:clamp(1.9rem,5vw,2.9rem);line-height:1.04;letter-spacing:-.028em;
+     margin:0 0 10px;text-wrap:balance}
+  .asof{font-family:var(--f-data);font-size:11.5px;color:var(--muted);
+        margin:0 0 30px;padding-bottom:20px;border-bottom:2px solid var(--ink)}
+  h2{font-family:var(--f-display);font-weight:500;font-size:1.28rem;
+     letter-spacing:-.012em;margin:38px 0 8px;text-wrap:balance}
+  ul{padding-left:1.15em}
+  li{margin-bottom:7px}
+  .draft{background:var(--flag-wash);border:1px solid var(--flag);border-radius:5px;
+         padding:16px 18px;margin:0 0 30px;font-size:.95rem}
+  .draft b{color:var(--flag)}
+  .fill{font-family:var(--f-data);font-size:.88em;background:var(--local-wash);
+        color:var(--local);padding:1px 6px;border-radius:3px;white-space:nowrap}
+  .plain{background:var(--surface);border-left:3px solid var(--local);
+         padding:14px 18px;margin:18px 0;font-size:.97rem}
+  .plain b{font-weight:500}
+  footer{margin-top:52px;border-top:1px solid var(--rule);padding-top:18px;
+         font-family:var(--f-data);font-size:11px;line-height:1.9;color:var(--muted)}
+  footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← Friday</a>
+  <h1>Privacy</h1>
+  <p class="asof">Last updated <span class="fill">[DATE]</span> · seller <span class="fill">[LEGAL NAME]</span></p>
+
+  <div class="draft">
+    <b>Draft — have an adult read this before it goes live.</b> Every
+    <span class="fill">[BRACKETED]</span> value is a fact I do not have. This describes
+    what the software actually does, checked against the code, not what would sound
+    best. It is not legal advice.
+  </div>
+
+  <div class="plain">
+    <b>The short version:</b> if you pre-order, we store your email address, which option
+    you picked and the time. If you buy, we store your email address and the licence key we
+    sent to it. That is the entire list. Friday herself runs on your computer, keeps your
+    data there, and never reports anything back to us — not what you ask, not whether
+    you are using her, not that she is installed.
+  </div>
+
+  <h2>Pre-orders</h2>
+  <ul>
+    <li><b>What we keep:</b> the email address you type in, which option you picked (free
+        trial, monthly or forever) and the time. Not your name, not your IP address, not
+        which page you came from. Nothing is charged.</li>
+    <li><b>Why:</b> to send you one email when what you picked is ready. Nothing else is sent
+        to it, and it is never sold or shared.</li>
+    <li><b>Where:</b> in storage on our own Cloudflare account (Cloudflare Workers KV),
+        which only we can read. Cloudflare processes it as our host.</li>
+    <li><b>How long:</b> until that email is sent, then deleted, or sooner if you ask.</li>
+    <li><b>To be removed:</b> write to <span class="fill">[SUPPORT EMAIL]</span> from the
+        same address and we will delete it within <span class="fill">[N]</span> days.</li>
+  </ul>
+
+  <h2>What we hold if you buy</h2>
+  <ul>
+    <li><b>Your email address</b>, because we have to send you a key.</li>
+    <li><b>The licence key</b> we issued to it, so we can re-send it if you lose it.</li>
+    <li><b>Your payment record</b>, which is held by <span class="fill">[PROCESSOR]</span>,
+        not by us. We never see or store card details.</li>
+  </ul>
+  <p>We do not hold anything you say to Friday, anything she answers, your files, your
+  contacts, or any record that she is running.</p>
+
+  <h2>What stays on your computer</h2>
+  <p>All of it. Her memory, your reminders, timers, notes and lists, your contacts, the
+  name you chose for her, and her record of what she has sent. These are ordinary files
+  in her data folder; you can read them, back them up or delete them, and nothing
+  syncs anywhere.</p>
+  <p>Each person on a machine has their own account, and what Friday learns is kept
+  under that account and tied to that install — one account never reads another's
+  memory, and a data folder copied to a different device is not adopted as anyone's.
+  You can erase everything she has learned about you in one step: tell her
+  <em>"delete my account"</em> and, once you confirm, she wipes that account's
+  memory, saved secrets and all — permanently, on the spot.</p>
+
+  <h2>What leaves your computer, and when</h2>
+  <p>This is the part most assistants are vague about, so here it is plainly.</p>
+  <ul>
+    <li><b>Easy questions never leave.</b> Reminders, timers, alarms, notes, lists,
+        opening apps, volume, brightness, windows, files, the clock — answered on your
+        machine, with the network untouched.</li>
+    <li><b>Hard questions do leave.</b> They go to whichever AI you are signed into —
+        Claude, Codex or Gemini — through the CLI you already pay for. Your question
+        travels with them, and their privacy policy applies to it, not ours.</li>
+    <li><b>Before anything leaves, identifiers are stripped.</b> Names in your
+        contacts, phone numbers, emails and card numbers are replaced with
+        placeholders and restored on your machine afterwards. The mapping never leaves
+        the process.</li>
+    <li><b>Some things never leave at all.</b> Aadhaar, PAN, passport, card, IFSC and
+        GSTIN numbers are withheld even in masked form, because masking one still
+        reveals that it exists. She answers from her own reasoning instead, and says
+        that she did.</li>
+    <li><b>Web searches leave.</b> If you ask her to look something up she contacts the
+        search engine or site directly, as your browser would.</li>
+    <li><b>Smart-home commands</b> go to your own Home Assistant on your own network.</li>
+  </ul>
+  <p>Every answer tells you which of these happened. That indicator is the product.</p>
+
+  <h2>The honest limit</h2>
+  <p>The stripping catches <em>patterns and the names you have written down</em>, not
+  meaning. "The patient with the limp who runs the bakery on Fourth Street" goes out
+  intact. So the truthful claim is that identifiers are stripped — never that the
+  model cannot work out who someone is. If something must never be seen at all, do not
+  send it: sealed mode keeps anything personal on your machine.</p>
+
+  <h2>No tracking, and what that means</h2>
+  <p>This website runs no tracking scripts and sets no cookies; the only thing it ever
+  sends us is what you choose to type into the pre-order form.</p>
+  <p>Inside Friday there is no analytics service, no telemetry, no crash reporting and no licence
+  check over the network. Her licence key is verified by a signature on your own
+  machine. We genuinely cannot tell whether you have installed her, opened her, or
+  stopped using her.</p>
+
+  <h2>Children</h2>
+  <p>Friday is not sold to people under <span class="fill">[AGE]</span>, and we do not
+  knowingly collect anything from them.</p>
+
+  <h2>Your rights over what we hold</h2>
+  <p>You can ask us what we have about you, correct it, or have it deleted. Since that
+  is an email address and a key, deletion means you can no longer be sent your key
+  again — your copy of Friday will carry on working. Write to
+  <span class="fill">[SUPPORT EMAIL]</span> and we will act within
+  <span class="fill">[N]</span> days.</p>
+  <p>Everything else — everything Friday learned on your machine — is yours to erase
+  directly, without asking us and without waiting: tell her <em>"delete my account"</em>
+  and confirm. Because that data never reached us, that is the only place it can be
+  deleted from, and you hold it.</p>
+
+  <h2>Where it is kept, and for how long</h2>
+  <p>Your email and key are held by <span class="fill">[WHERE — e.g. the processor's
+  own records, or a spreadsheet on one machine]</span> for as long as we sell version
+  1, and deleted <span class="fill">[WHEN]</span>.</p>
+
+  <h2>Changes</h2>
+  <p>If this page changes in a way that affects what we hold, the date above changes
+  and we say so in the release notes.</p>
+
+  <footer>
+    <a href="index.html">Friday</a> · <a href="refund.html">Refunds</a> ·
+    <a href="terms.html">Terms</a><br>
+    Questions: <span class="fill">[SUPPORT EMAIL]</span>
+  </footer>
+</div>
+</body>
+</html>
