@@ -129,6 +129,25 @@ header{position:absolute;left:0;right:0;top:0;z-index:30;padding-left:var(--gl);
 .room-wait a{color:var(--ink)}
 /* how we check */
 .checks{padding-block:140px;border-top:1px solid var(--hair)}
+.works-band{border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.works{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 32px;padding-block:28px}
+.works-k,.works-n{font:500 10px/1.6 var(--f);letter-spacing:.26em;text-transform:uppercase;color:var(--muted);max-width:none}
+.works-l{display:flex;flex-wrap:wrap;gap:10px 36px;list-style:none;margin:0;padding:0}
+.works-l li{font:300 clamp(1.3rem,2.4vw,1.75rem)/1 var(--f);letter-spacing:-.02em;color:var(--ink)}
+.day{padding-block:140px;border-top:1px solid var(--hair)}
+.tl{list-style:none;margin:56px 0 0;padding:0;border-top:1px solid var(--hair-2);max-width:62rem}
+.tl li{display:grid;grid-template-columns:5.5rem minmax(0,1fr) auto;gap:6px 24px;align-items:baseline;padding:20px 0;border-bottom:1px solid var(--hair);position:relative}
+.tl li::before{content:"";position:absolute;left:0;top:-1px;width:40px;height:1px}
+.tl li.here::before{background:var(--local)}.tl li.sent::before{background:var(--mask)}
+.tl time{font:400 .8rem/1.4 var(--f-mono);color:var(--muted);grid-row:span 2;font-variant-numeric:tabular-nums}
+.tl .q{font:400 .82rem/1.5 var(--f-mono);color:var(--muted);overflow-wrap:anywhere}
+.tl .q::before{content:"you · ";opacity:.75}
+.tl .a{font:400 .9rem/1.5 var(--f-mono);color:var(--ink);grid-column:2;overflow-wrap:anywhere}
+.tl .a::before{content:"→ ";color:var(--muted)}
+.tl .tag{grid-column:3;grid-row:1 / span 2;align-self:center}
+@media (max-width:640px){.tl li{grid-template-columns:4rem minmax(0,1fr)}.tl .tag{grid-column:2;grid-row:auto;justify-self:start;margin-top:6px}}
+.tally{display:flex;flex-wrap:wrap;gap:12px 40px;margin-top:28px;max-width:none;font:500 10px/1.6 var(--f);letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.tally b{font:200 2.2rem/1 var(--f);letter-spacing:-.04em;color:var(--ink);margin-right:10px;vertical-align:-6px;font-variant-numeric:tabular-nums}
 .gates{display:grid;gap:0;margin-top:56px;border-top:1px solid var(--hair-2)}
 @media (min-width:760px){.gates{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (min-width:1180px){.gates{grid-template-columns:repeat(4,minmax(0,1fr))}}
@@ -445,6 +464,14 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
   </section>
 </div>
 
+<div class="band works-band">
+  <section class="inner works" aria-label="Works with">
+    <p class="works-k">Uses the AI you already pay for</p>
+    <ul class="works-l"><li>Claude Code</li><li>Codex</li><li>Gemini CLI</li></ul>
+    <p class="works-n">One is enough. Billed to your own plan, not to us.</p>
+  </section>
+</div>
+
 <div id="story-start"></div>
 <div id="story" role="region" aria-label="The room: how Friday changes your desk, told in scroll">
   <p class="room-wait">Loading the room · <a href="#route">Skip to how she decides</a></p>
@@ -518,6 +545,24 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
   </div>
 </div>
 <div id="details" hidden></div>
+
+<div class="band">
+  <section class="inner day" id="day" aria-labelledby="day-h">
+    <p class="kick">A day with Friday</p>
+    <h2 class="h2" id="day-h">Seven asks. One left your <i>PC.</i></h2>
+    <p class="lede">An example day. Every ask below is one her tests check on every build; the replies are paraphrased.</p>
+    <ol class="tl">
+      <li class="here"><time>07:40</time><span class="q">set a timer for 10 minutes</span><span class="a">Timer set for 10 minutes.</span><span class="tag here"><i class="dot here"></i><span>local</span></span></li>
+      <li class="here"><time>09:15</time><span class="q">add milk to my shopping list</span><span class="a">Added milk to your shopping list.</span><span class="tag here"><i class="dot here"></i><span>local</span></span></li>
+      <li class="here"><time>11:30</time><span class="q">open Chrome</span><span class="a">Opening Chrome.</span><span class="tag here"><i class="dot here"></i><span>local</span></span></li>
+      <li class="sent"><time>13:05</time><span class="q">draft a message to Anita about tomorrow's appointment</span><span class="a">"Hi Anita, just confirming…"</span><span class="tag sent"><i class="dot sent"></i><span>claude · 2 identifiers hidden</span></span></li>
+      <li class="here"><time>16:20</time><span class="q">take a screenshot</span><span class="a">Saved a screenshot.</span><span class="tag here"><i class="dot here"></i><span>local</span></span></li>
+      <li class="here"><time>18:30</time><span class="q">remind me to call Anita at 8</span><span class="a">I'll remind you to call Anita today at 8:00 pm.</span><span class="tag here"><i class="dot here"></i><span>local</span></span></li>
+      <li class="here"><time>22:10</time><span class="q">how much have you used today?</span><span class="a">One request to Claude today. Everything else stayed here.</span><span class="tag here"><i class="dot here"></i><span>local</span></span></li>
+    </ol>
+    <p class="tally"><span><b>6</b> answered on your PC</span><span><b>1</b> sent, names and numbers hidden</span><span><b>0</b> IDs sent</span></p>
+  </section>
+</div>
 
 <div class="band">
   <section class="inner route" id="route" aria-labelledby="route-h">
@@ -625,6 +670,7 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
           <li>That the model can't tell who you're talking about. Masking catches patterns and names you saved, not meaning.</li>
           <li>That she knows more than the model she calls. For knowledge, she is that model.</li>
           <li>That she works without a model. Without one she's a timers, notes and desktop-control app, and says so.</li>
+          <li>What your AI provider does with what's sent. That's set by your Claude, OpenAI or Google plan's terms, not by us.</li>
         </ul>
       </div>
     </div>
@@ -754,7 +800,7 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
 
 <footer>
   <div class="inner foot">
-    <p>Friday runs on your PC and uses the AI subscription you already pay for. Windows 10/11, one signed-in CLI. The room: person from the Microsoft Rocketbox Avatar Library (MIT), interior light from Poly Haven (CC0), three.js and Lenis (MIT).</p>
+    <p>Friday runs on your PC and uses the AI subscription you already pay for. Windows 10/11, one signed-in CLI. Not affiliated with or endorsed by Anthropic, OpenAI or Google; Claude Code, Codex and Gemini are their trademarks. The room: person from the Microsoft Rocketbox Avatar Library (MIT), interior light from Poly Haven (CC0), three.js and Lenis (MIT).</p>
     <nav aria-label="Legal"><a href="refund.html">Refunds</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></nav>
   </div>
 </footer>
