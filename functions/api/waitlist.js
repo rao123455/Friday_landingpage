@@ -5,7 +5,10 @@
  * option it pre-ordered (trial, monthly or forever) and the time. Nothing else: no IP, no
  * user agent, no referrer. Nothing is charged; a pre-order is a reservation.
  *
- *   POST /api/waitlist   {email, consent, plan}   JSON (from the page's script) or a plain form post
+ *   POST /api/waitlist   {email, consent, plan, windows, cli}   JSON (from the page's script) or a plain form post
+ *
+ * `windows` and `cli` are the two preview questions; both optional and from a fixed list, so
+ * nothing free-text about a person is ever stored. `plan` is the price they say they might pick.
  *
  * Needs a Workers KV namespace bound as WAITLIST (see launch/DEPLOY.md). Without it the
  * function says so and stores nothing, rather than pretending to succeed.
@@ -22,6 +25,9 @@
 
 const MAX_LEN = 254;
 const PLANS = ["trial", "monthly", "forever"];
+const WINDOWS = ["11", "10", "other"];
+const CLIS = ["claude", "codex", "gemini", "none"];
+const pick = (value, allowed) => { const v = value === undefined ? "" : String(value); return v === "" || allowed.includes(v) ? v : null; };
 const EMAIL = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]{2,}$/;
 
 export async function onRequestPost({ request, env }) {
@@ -60,15 +66,22 @@ export async function onRequestPost({ request, env }) {
 
   const plan = data.plan === undefined || data.plan === "" ? "trial" : String(data.plan);
   if (!PLANS.includes(plan)) {
-    return reply(request, 400, "Pick the free trial, monthly or forever.");
+    return reply(request, 400, "Pick one of the price options, or not sure.");
+  }
+
+  const windows = pick(data.windows, WINDOWS), cli = pick(data.cli, CLIS);
+  if (windows === null || cli === null) {
+    return reply(request, 400, "One of the answers wasn't one of the choices, so nothing was stored.");
   }
 
   const key = "email:" + email;
   try {
     const was = await env.WAITLIST.get(key);
     const before = was ? JSON.parse(was) : null;
-    if (!before || before.plan !== plan) {   // a second pre-order only changes the choice
-      await env.WAITLIST.put(key, JSON.stringify({ joined: before ? before.joined : new Date().toISOString(), plan }));
+    const next = { joined: before ? before.joined : new Date().toISOString(), plan, windows, cli };
+    if (!before || before.plan !== plan || before.windows !== windows || before.cli !== cli) {
+      // a second request only updates the answers; the original join time is kept
+      await env.WAITLIST.put(key, JSON.stringify(next));
     }
   } catch {
     // Free Workers KV allows 1,000 writes a day; past that, or in an outage, say so plainly.
@@ -83,7 +96,7 @@ export function onRequestGet() {
   });
 }
 
-const OK = "You're on the list. We'll email you once when it's ready, then delete your address. Nothing to pay now.";
+const OK = "You're on the list. If you're picked, the invite comes to this address. Nothing to pay.";
 
 function reply(request, status, message) {
   const wantsJson = (request.headers.get("Accept") || "").includes("application/json");
