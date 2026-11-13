@@ -72,6 +72,7 @@ a{color:inherit}
 .dot.here{background:var(--local)}.dot.sent{background:var(--mask)}.dot.held{background:var(--held)}
 .tag{display:inline-flex;align-items:center;gap:8px;font:400 .78rem/1.35 var(--f-mono);padding:5px 10px;border-radius:3px;border:1px solid;max-width:100%}
 .tag span{min-width:0;overflow-wrap:anywhere}
+.tag a{color:inherit;text-underline-offset:3px}
 .tag.here{color:var(--local);border-color:rgba(169,194,179,.32)}
 .tag.sent{color:var(--mask);border-color:rgba(201,185,154,.32)}
 .tag.held{color:var(--held);border-color:rgba(201,160,160,.36)}
@@ -129,6 +130,25 @@ header{position:absolute;left:0;right:0;top:0;z-index:30;padding-left:var(--gl);
 .room-wait a{color:var(--ink)}
 /* how we check */
 .checks{padding-block:140px;border-top:1px solid var(--hair)}
+.works-band{border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.works{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 32px;padding-block:28px}
+.works-k,.works-n{font:500 10px/1.6 var(--f);letter-spacing:.26em;text-transform:uppercase;color:var(--muted);max-width:none}
+.works-l{display:flex;flex-wrap:wrap;gap:10px 36px;list-style:none;margin:0;padding:0}
+.works-l li{font:300 clamp(1.3rem,2.4vw,1.75rem)/1 var(--f);letter-spacing:-.02em;color:var(--ink)}
+.day{padding-block:140px;border-top:1px solid var(--hair)}
+.tl{list-style:none;margin:56px 0 0;padding:0;border-top:1px solid var(--hair-2);max-width:62rem}
+.tl li{display:grid;grid-template-columns:5.5rem minmax(0,1fr) auto;gap:6px 24px;align-items:baseline;padding:20px 0;border-bottom:1px solid var(--hair);position:relative}
+.tl li::before{content:"";position:absolute;left:0;top:-1px;width:40px;height:1px}
+.tl li.here::before{background:var(--local)}.tl li.sent::before{background:var(--mask)}
+.tl time{font:400 .8rem/1.4 var(--f-mono);color:var(--muted);grid-row:span 2;font-variant-numeric:tabular-nums}
+.tl .q{font:400 .82rem/1.5 var(--f-mono);color:var(--muted);overflow-wrap:anywhere}
+.tl .q::before{content:"you · ";opacity:.75}
+.tl .a{font:400 .9rem/1.5 var(--f-mono);color:var(--ink);grid-column:2;overflow-wrap:anywhere}
+.tl .a::before{content:"→ ";color:var(--muted)}
+.tl .tag{grid-column:3;grid-row:1 / span 2;align-self:center}
+@media (max-width:640px){.tl li{grid-template-columns:4rem minmax(0,1fr)}.tl .tag{grid-column:2;grid-row:auto;justify-self:start;margin-top:6px}}
+.tally{display:flex;flex-wrap:wrap;gap:12px 40px;margin-top:28px;max-width:none;font:500 10px/1.6 var(--f);letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.tally b{font:200 2.2rem/1 var(--f);letter-spacing:-.04em;color:var(--ink);margin-right:10px;vertical-align:-6px;font-variant-numeric:tabular-nums}
 .gates{display:grid;gap:0;margin-top:56px;border-top:1px solid var(--hair-2)}
 @media (min-width:760px){.gates{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (min-width:1180px){.gates{grid-template-columns:repeat(4,minmax(0,1fr))}}
@@ -365,6 +385,32 @@ header{position:absolute;left:0;right:0;top:0;z-index:30;padding-left:var(--gl);
 .pl span{display:grid;grid-template-columns:14px 1fr;gap:10px}
 .pl span::before{content:"";height:1px;background:var(--hair-2);margin-top:.85em}
 .wl{max-width:none}
+.req{margin:6px 0 4px;display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline}
+.req-k,.plans-k{font:500 10px/1.6 var(--f);letter-spacing:.26em;text-transform:uppercase;color:var(--muted)}
+.req ul{display:flex;flex-wrap:wrap;gap:6px 24px;list-style:none;margin:0;padding:0;color:var(--soft)}
+.req a{color:var(--ink);text-underline-offset:3px;margin-left:6px;font-size:.9em}
+.qs{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px 12px;min-width:0}
+.qs legend{width:100%;padding:0;margin-bottom:10px;color:var(--ink);font-size:1rem}
+.qs label{display:flex;gap:9px;align-items:center;padding:10px 14px;border:1px solid var(--hair);border-radius:6px;background:var(--bg-2);color:var(--soft);cursor:pointer}
+.qs label:has(input:checked){border-color:var(--brass);color:var(--ink)}
+.qs label:has(input:focus-visible){outline:1px solid var(--ink);outline-offset:3px}
+.qs input{margin:0;accent-color:var(--brass)}
+.plans legend.plans-k{width:100%;padding:0;margin-bottom:12px}
+.plans-k span{display:block;text-transform:none;letter-spacing:0;font:300 .92rem/1.5 var(--f);color:var(--muted);margin-top:4px}
+.ev{margin-top:72px;max-width:68rem}
+.ev-h{font:300 clamp(1.5rem,2.6vw,2rem)/1.2 var(--f);letter-spacing:-.02em;margin:0;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline}
+.ev-h span{font:400 .75rem/1 var(--f-mono);color:var(--muted);letter-spacing:0}
+.ev-l{color:var(--soft);margin:14px 0 26px;max-width:60ch}
+.ev-t{border-top:1px solid var(--hair-2)}
+.ev-r{display:grid;grid-template-columns:minmax(0,1.1fr) 11rem minmax(0,1.6fr);gap:6px 24px;padding:16px 0;border-bottom:1px solid var(--hair);align-items:baseline}
+.ev-hd{font:500 10px/1.6 var(--f);letter-spacing:.24em;text-transform:uppercase;color:var(--muted);padding:12px 0}
+.ev-r span:last-child{color:var(--soft);font-size:.95rem}
+.ev-hd span:last-child{color:inherit;font-size:inherit}
+.st{font:500 .78rem/1.3 var(--f-mono);display:inline-flex;gap:8px;align-items:center}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;flex:none}
+.st.no{color:var(--held)}.st.no::before{background:var(--held)}
+.st.part{color:var(--mask)}.st.part::before{background:var(--mask)}
+@media (max-width:720px){.ev-r{grid-template-columns:minmax(0,1fr) auto}.ev-r span:last-child{grid-column:1 / -1}.ev-hd span:last-child{display:none}}
 .wl-row{max-width:40rem}
 .close .fine{font-size:.92rem;color:var(--muted);max-width:66ch}
 .close .stripes{height:130px;margin:0 -10%;transform:rotate(-4deg) translateY(28px);filter:blur(16px);opacity:.38}
@@ -398,7 +444,7 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
       <li><a href="#route">How she decides</a></li>
       <li><a href="#does">What she does</a></li>
       <li><a href="#line">What's true</a></li>
-      <li><a href="#preview">Pre-order</a></li>
+      <li><a href="#preview">Preview</a></li>
     </ul>
   </div>
 </header>
@@ -428,10 +474,10 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
       <h1 id="hero-h">Every answer, a <i>receipt.</i></h1>
       <p class="sub">Friday runs on your PC and uses <b>the Claude, Codex or Gemini CLI you're already signed into</b>. Easy things she answers herself. Hard ones go out with names and numbers hidden. Some things she won't send at all. Under every reply, she tells you which.</p>
       <div class="ctas">
-        <a class="btn solid" href="#preview" data-plan="trial">Get the free trial</a>
+        <a class="btn solid" href="#preview">Request an invite</a>
         <a class="btn" href="#story-start">See the room</a>
       </div>
-      <p class="reqs">Free for 14 days, then $8 a month or $39 once · download opens at launch · Windows 10/11</p>
+      <p class="reqs">Private preview · invite only · Windows 10/11 · one signed-in AI command-line tool</p>
     </div>
     <figure class="shot" style="margin:0" aria-labelledby="shot-cap">
       <div class="stripes" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -439,9 +485,17 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
       <div class="cards" id="cards">
         <div class="card here"><span class="q">remind me to call Anita at 8</span><span class="a">I'll remind you to call Anita today at 8:00 pm.</span><span><span class="tag here"><i class="dot here"></i><span>local — never left this machine</span></span></span></div>
         <div class="card sent"><span class="q">draft a message to Anita about tomorrow's appointment</span><span class="a">"Hi Anita, just confirming…"</span><span><span class="tag sent"><i class="dot sent"></i><span>claude · 2 identifiers hidden (PERSON, PHONE)</span></span></span></div>
-        <div class="card held"><span class="q">my aadhaar is 1234 5678 9012, what do I do about the mismatch</span><span class="a">I'm not sending that anywhere, so I'll answer from here.</span><span><span class="tag held"><i class="dot held"></i><span>local · withheld — an AADHAAR was present</span></span></span></div>
+        <div class="card held"><span class="q">my aadhaar is 2345 6789 0123, what do I do about the mismatch</span><span class="a">I'm not sending that anywhere, so I'll answer from here.</span><span><span class="tag held"><i class="dot held"></i><span>local · withheld — an AADHAAR was present</span></span></span></div>
       </div>
     </figure>
+  </section>
+</div>
+
+<div class="band works-band">
+  <section class="inner works" aria-label="Works with">
+    <p class="works-k">Uses the AI you already pay for</p>
+    <ul class="works-l"><li>Claude Code</li><li>Codex</li><li>Gemini CLI</li></ul>
+    <p class="works-n">One is enough. Billed to your own plan, not to us.</p>
   </section>
 </div>
 
@@ -498,7 +552,7 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
     <section class="cap" data-a=".81" data-b=".865">
       <p class="kicker t-ghost">Feature</p>
       <h2>Hard questions get every opinion.</h2>
-      <p class="lede">She can ask each model you're signed into, then combine the best answer. The receipt tells you who answered.</p>
+      <p class="lede">If you're signed into more than one, she can ask each of them, then combine the best answer. With one, she uses that one. The receipt tells you who answered.</p>
     </section>
     <section class="cap" data-a=".875" data-b=".925">
       <p class="kicker t-mask">Feature</p>
@@ -507,8 +561,8 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
     </section>
     <section class="cap" data-a=".935" data-b=".975">
       <p class="kicker t-held">Feature</p>
-      <h2>Government IDs never leave.</h2>
-      <p class="lede">Aadhaar, PAN, passport and card numbers aren't sent anywhere, not even masked. Reminders, apps and files run on your PC for zero tokens.</p>
+      <h2>Recognised IDs never leave.</h2>
+      <p class="lede">Aadhaar, PAN, passport and card numbers she recognises aren't sent anywhere, not even masked. She recognises them by their shape, so one written in an unusual way can slip through. The list of ways is below.</p>
     </section>
     <section class="cap end" data-a=".982" data-b="1.2">
       <p class="kicker">Friday</p>
@@ -518,6 +572,24 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
   </div>
 </div>
 <div id="details" hidden></div>
+
+<div class="band">
+  <section class="inner day" id="day" aria-labelledby="day-h">
+    <p class="kick">A day with Friday</p>
+    <h2 class="h2" id="day-h">Seven asks. One left your <i>PC.</i></h2>
+    <p class="lede">An example day. Her tests check that the six local asks reach the right skill on every build; the replies are paraphrased. <b>Checked</b> means she looked afterwards and saw it happen. <b>Not checked</b> means she reports what she did, not what she saw.</p>
+    <ol class="tl">
+      <li class="here"><time>07:40</time><span class="q">set a timer for 10 minutes</span><span class="a">Timer set for 10 minutes.</span><span class="tag here"><i class="dot here"></i><span>local · not checked</span></span></li>
+      <li class="here"><time>09:15</time><span class="q">add milk to my shopping list</span><span class="a">Added milk to your shopping list.</span><span class="tag here"><i class="dot here"></i><span>local · checked</span></span></li>
+      <li class="here"><time>11:30</time><span class="q">open Chrome</span><span class="a">Opening Chrome.</span><span class="tag here"><i class="dot here"></i><span>local · not checked</span></span></li>
+      <li class="sent"><time>13:05</time><span class="q">draft a message to Anita about tomorrow's appointment</span><span class="a">"Hi Anita, just confirming…"</span><span class="tag sent"><i class="dot sent"></i><span>claude · 2 identifiers hidden</span></span></li>
+      <li class="here"><time>16:20</time><span class="q">take a screenshot</span><span class="a">Saved a screenshot.</span><span class="tag here"><i class="dot here"></i><span>local · not checked</span></span></li>
+      <li class="here"><time>18:30</time><span class="q">remind me to call Anita at 8</span><span class="a">I'll remind you to call Anita today at 8:00 pm.</span><span class="tag here"><i class="dot here"></i><span>local · not checked</span></span></li>
+      <li class="here"><time>22:10</time><span class="q">how much have you used today?</span><span class="a">One request to Claude today. Everything else stayed here.</span><span class="tag here"><i class="dot here"></i><span>local · a reading</span></span></li>
+    </ol>
+    <p class="tally"><span><b>6</b> answered on your PC</span><span><b>1</b> sent, names and numbers hidden</span><span><b>1</b> of 5 actions checked</span></p>
+  </section>
+</div>
 
 <div class="band">
   <section class="inner route" id="route" aria-labelledby="route-h">
@@ -530,7 +602,7 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
         <button class="pick" type="button" data-i="0" aria-pressed="true"><i class="dot here" aria-hidden="true"></i><span>what time is it</span></button>
         <button class="pick" type="button" data-i="1" aria-pressed="false"><i class="dot here" aria-hidden="true"></i><span>remind me to call Anita at 8</span></button>
         <button class="pick" type="button" data-i="2" aria-pressed="false"><i class="dot sent" aria-hidden="true"></i><span>draft a message to Anita about tomorrow's appointment</span></button>
-        <button class="pick" type="button" data-i="3" aria-pressed="false"><i class="dot held" aria-hidden="true"></i><span>my aadhaar is 1234 5678 9012, what do I do about the mismatch</span></button>
+        <button class="pick" type="button" data-i="3" aria-pressed="false"><i class="dot held" aria-hidden="true"></i><span>my aadhaar is 2345 6789 0123, what do I do about the mismatch</span></button>
       </fieldset>
       <div class="trace" id="trace" data-route="here" aria-live="polite">
         <span class="edge" aria-hidden="true"></span>
@@ -564,7 +636,7 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
         <h3><i class="dot sent" aria-hidden="true"></i>Sent</h3>
         <p>Writing, explaining and hard questions go to the CLI you're signed into, billed to your plan.</p>
         <ul>
-          <li>Names from your contacts, phone numbers, emails and card numbers become placeholders first</li>
+          <li>Names from your contacts, phone numbers and emails become placeholders first</li>
           <li>They're restored on your PC when the reply comes back</li>
           <li>The receipt says how many were hidden and of what kind</li>
           <li>One CLI is enough: Claude Code, Codex or Gemini</li>
@@ -577,6 +649,7 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
           <li>Aadhaar, PAN and passport numbers</li>
           <li>Card numbers, IFSC and GSTIN</li>
           <li>She answers from here instead, and says why</li>
+          <li><span>Only ones she recognises. Today she misses digits split by dots, slashes or a line break, numbers spelled out in words or in full-width digits, and a PAN in lowercase</span></li>
           <li><span><span class="mono">sealed</span> mode keeps anything personal at home</span></li>
         </ul>
       </div>
@@ -625,6 +698,7 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
           <li>That the model can't tell who you're talking about. Masking catches patterns and names you saved, not meaning.</li>
           <li>That she knows more than the model she calls. For knowledge, she is that model.</li>
           <li>That she works without a model. Without one she's a timers, notes and desktop-control app, and says so.</li>
+          <li>What your AI provider does with what's sent. That's set by your Claude, OpenAI or Google plan's terms, not by us.</li>
         </ul>
       </div>
     </div>
@@ -635,8 +709,8 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
 <div class="band">
   <section class="inner checks" id="checks" aria-labelledby="checks-h">
     <p class="kick">How we check</p>
-    <h2 class="h2" id="checks-h">22 checks run on every change to the <i>code.</i></h2>
-    <p class="lede">Four gates stand between Friday and anyone who buys her. The test suite runs them on every push, and a single failure turns the build red. This is every check, as it ran on 4 November 2026.</p>
+    <h2 class="h2" id="checks-h">22 automated checks. And what they don't <i>prove.</i></h2>
+    <p class="lede">Four gates of automated regression checks run on every push, and a single failure turns the build red. This is every check, as it ran on 13 November 2026. Passing them is necessary, not sufficient: the table after them is what still has to be shown before anyone pays.</p>
     <div class="gates">
       <div class="gate">
         <div class="gh"><h3>Installs</h3><span class="pass">7 / 7 pass</span></div>
@@ -659,7 +733,23 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
         <ul><li>the shell has exactly one governed door</li><li>no action alias reaches a shell</li><li>identifiers are stripped and restored</li><li>government IDs are never sent</li><li>the registry shields every cloud provider</li><li>no pickle / eval / exec / yaml.load</li></ul>
       </div>
     </div>
-    <p class="after"><b>What these don't prove:</b> that she installs cleanly on your laptop. Automated checks can't see your antivirus or your setup. Watching people install her on their own machines is the next step before any sale.</p>
+    <p class="after"><b>What these don't prove:</b> that she installs cleanly on your laptop. Automated checks can't see your antivirus or your setup.</p>
+
+    <div class="ev" id="evidence">
+      <h3 class="ev-h">Release evidence <span>updated 13 November 2026</span></h3>
+      <p class="ev-l">What has to be true before checkout opens, and where each one stands. Nothing here is marked done because code exists or a test passes on our machine.</p>
+      <div class="ev-t" role="table" aria-label="Release evidence">
+        <div class="ev-r ev-hd" role="row"><span role="columnheader">Claim</span><span role="columnheader">Status</span><span role="columnheader">What would count</span></div>
+        <div class="ev-r" role="row"><span role="cell">Installs on a stranger's Windows PC</span><span role="cell"><b class="st no">Not shown</b></span><span role="cell">Clean installs by preview testers, on their own machines</span></div>
+        <div class="ev-r" role="row"><span role="cell">Upgrades and uninstalls cleanly</span><span role="cell"><b class="st no">Not shown</b></span><span role="cell">Tested on the same machines</span></div>
+        <div class="ev-r" role="row"><span role="cell">Recognised IDs never leave</span><span role="cell"><b class="st part">Partly</b></span><span role="cell">Withheld when found. Six known ways to write one slip past, listed above; an adversarial test of every outbound path is not done</span></div>
+        <div class="ev-r" role="row"><span role="cell">Every action goes through one governed door</span><span role="cell"><b class="st part">Checked by test</b></span><span role="cell">A check on every push fails if anything can reach actions another way. Not yet reviewed by anyone outside the project</span></div>
+        <div class="ev-r" role="row"><span role="cell">She checks that actions worked</span><span role="cell"><b class="st part">2 of 78</b></span><span role="cell">Opening a page in the browser and adding a note are checked. The rest report what she did</span></div>
+        <div class="ev-r" role="row"><span role="cell">Exact maths is right</span><span role="cell"><b class="st part">Fix written</b></span><span role="cell">A review on 11 November found "3^4 − 1" gave 81. A fix with 11 regression tests is written and waiting to be merged</span></div>
+        <div class="ev-r" role="row"><span role="cell">Works with each AI provider's terms</span><span role="cell"><b class="st no">Not reviewed</b></span><span role="cell">Claude Code, Codex and Gemini CLI terms read for this use</span></div>
+        <div class="ev-r" role="row"><span role="cell">Privacy, refund and terms pages</span><span role="cell"><b class="st no">Drafts</b></span><span role="cell">Reviewed by an adult with legal responsibility for the sale</span></div>
+      </div>
+    </div>
   </section>
 </div>
 
@@ -673,8 +763,9 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
       <details><summary>Will she eat my usage?</summary><p>Most of what people ask an assistant never reaches a model: timers, reminders, notes and desktop control are answered on your PC. Ask "how much have you used today?" and she tells you what she sent. She can't see how much of your plan is left; that's your provider's number.</p></details>
       <details><summary>Is the microphone always on?</summary><p>No. Listening is off until you turn it on.</p></details>
       <details><summary>What if I'm not signed in to anything?</summary><p>She tells you in the first minute and names the one thing to do. Until then she still handles timers, reminders, notes and desktop control.</p></details>
-      <details><summary>Is it a subscription?</summary><p>Your choice. The planned prices are $8 a month, which keeps you on the latest version including major ones, or $39 once for version 1.x to keep, with every 1.x update and all bug and security fixes. Either way there's a 7-day refund on your first payment, and monthly keeps working until the end of the month you paid for.</p></details>
-      <details><summary>When can I get it?</summary><p>When the private preview ends. Pre-order the free trial or a plan now, with nothing to pay, and you'll get one email when it's ready. Then we delete your address.</p></details>
+      <details><summary>What will it cost?</summary><p>Nothing during the preview, and nothing is on sale yet. The prices we're planning are $8 a month, or $39 once for version 1.x. How long version 1.x keeps getting fixes will be stated before checkout opens, not after. We'll ask preview testers what they would actually pay before we decide.</p></details>
+      <details><summary>What's a CLI, and do I have one?</summary><p>A command-line tool from the AI company you already pay. If you have a Claude Pro or Max plan, it's Claude Code; with ChatGPT Plus or Pro, it's Codex; with a Google account, it's Gemini CLI. You install it once and sign in. Friday then uses it, so your requests are billed to the plan you already have. If you don't have one yet, say so in the form and we'll send setup steps with your invite.</p></details>
+      <details><summary>When can I get it?</summary><p>We're inviting Windows users a few at a time, starting with setups she supports today. Testers install her, try five everyday tasks and tell us what broke. Everyone else gets one email when she's ready for the public, with 14 days free.</p></details>
       <details><summary>What happens after the free trial?</summary><p>For 14 days she does everything. After that, if no key has been entered, she stops answering and tells you why, rather than quietly doing less.</p></details>
     </div>
   </section>
@@ -683,43 +774,61 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
 <div class="band">
   <section class="inner close" id="preview" aria-labelledby="preview-h">
     <div class="in">
-      <p class="kick">Pre-order</p>
-      <h2 class="big" id="preview-h">Try her free for 14 days. Or pre‑order a <i>plan.</i></h2>
-      <p class="lede">Friday is in private preview, so there's no download yet. Pick what you want and leave your email: we'll send <b>one message</b> when it's ready, then delete your address. <b>Nothing to pay now.</b></p>
+      <p class="kick">Private preview</p>
+      <h2 class="big" id="preview-h">Help us prove it. Request an <i>invite.</i></h2>
+      <p class="lede">There's no public download yet. We're inviting a small group of Windows users first, a few at a time. Testers get the whole product free, install it on their own PC, try five everyday tasks and tell us what broke. Two questions help us invite people whose setup she supports.</p>
+
+      <div class="req" aria-label="What you need">
+        <p class="req-k">What you need</p>
+        <ul><li>Windows 10 or 11</li><li>Python 3.9 or newer</li><li>Claude Code, Codex or Gemini CLI, signed in <a href="#faq">what's that?</a></li></ul>
+      </div>
 
       <form class="wl" id="wl" action="/api/waitlist" method="post" novalidate>
+        <fieldset class="qs">
+          <legend>Which Windows do you use?</legend>
+          <label><input type="radio" name="windows" value="11" checked> Windows 11</label>
+          <label><input type="radio" name="windows" value="10"> Windows 10</label>
+          <label><input type="radio" name="windows" value="other"> Something else</label>
+        </fieldset>
+        <fieldset class="qs">
+          <legend>Which AI are you signed into?</legend>
+          <label><input type="radio" name="cli" value="claude" checked> Claude</label>
+          <label><input type="radio" name="cli" value="codex"> ChatGPT / Codex</label>
+          <label><input type="radio" name="cli" value="gemini"> Gemini</label>
+          <label><input type="radio" name="cli" value="none"> None yet</label>
+        </fieldset>
         <fieldset class="plans">
-          <legend class="sr">Choose an option</legend>
+          <legend class="plans-k">If you bought it later, which would you pick? <span>Optional. Nothing is charged, and this only helps us set prices.</span></legend>
           <label class="plan">
             <input type="radio" name="plan" value="trial" checked>
-            <span class="pt"><span class="pn">Free trial</span><span class="pnote">14 days</span></span>
-            <span class="amt">$0<small>no card</small></span>
-            <span class="pl"><span>The whole product, nothing held back</span><span>Runs on your PC from the first minute</span><span>Then pick a plan, or she stops answering and tells you why</span></span>
+            <span class="pt"><span class="pn">Not sure yet</span><span class="pnote">fine</span></span>
+            <span class="amt">$0<small>during the preview</small></span>
+            <span class="pl"><span>The whole product, nothing held back</span><span>At public launch, everyone gets 14 days free</span></span>
           </label>
           <label class="plan">
             <input type="radio" name="plan" value="monthly">
             <span class="pt"><span class="pn">Monthly</span><span class="pnote">planned</span></span>
             <span class="amt">$8<small>per month</small></span>
-            <span class="pl"><span>Always the latest version</span><span>New features as they ship</span><span>Major versions included</span><span>Cancel any time</span></span>
+            <span class="pl"><span>Always the latest version</span><span>Major versions included</span><span>Cancel any time</span></span>
           </label>
           <label class="plan">
             <input type="radio" name="plan" value="forever">
-            <span class="pt"><span class="pn">Forever</span><span class="pnote">planned</span></span>
+            <span class="pt"><span class="pn">Version 1.x</span><span class="pnote">planned</span></span>
             <span class="amt">$39<small>once</small></span>
-            <span class="pl"><span>Version 1.x, yours to keep</span><span>Every 1.x update included</span><span>Bug and security fixes, always free</span><span>Version 2.0 is a discounted upgrade</span></span>
+            <span class="pl"><span>Version 1.x, yours to keep</span><span>1.x updates included</span><span>How long 1.x gets fixes is stated before checkout opens</span></span>
           </label>
         </fieldset>
         <div class="wl-row">
           <label class="sr" for="wl-email">Email address</label>
           <input id="wl-email" name="email" type="email" inputmode="email" autocomplete="email" required maxlength="254" placeholder="you@example.com" aria-describedby="wl-msg">
-          <button class="btn solid" type="submit" id="wl-go">Pre-order · nothing to pay</button>
+          <button class="btn solid" type="submit" id="wl-go">Request an invite</button>
         </div>
         <div class="wl-trap" aria-hidden="true"><label for="wl-site">Leave this empty</label><input id="wl-site" name="website" type="text" tabindex="-1" autocomplete="off"></div>
-        <label class="wl-ok" for="wl-consent"><input id="wl-consent" name="consent" type="checkbox" required> <span>Email me once when it's ready. I've read <a href="privacy.html">what you keep and for how long</a>.</span></label>
+        <label class="wl-ok" for="wl-consent"><input id="wl-consent" name="consent" type="checkbox" required> <span>I'm 18 or older. Email me an invite if I'm picked, and once when Friday is public, then delete my address. I've read <a href="privacy.html#preview-list">what you keep, for how long, and how to withdraw</a>.</span></label>
         <p class="wl-msg" id="wl-msg" role="status" aria-live="polite"></p>
       </form>
-      <p class="fine">Planned prices; checkout opens at launch. 7-day refund on your first payment, either plan. Needs Windows 10 or 11, Python 3.9 or newer, and one of Claude Code, Codex or Gemini CLI, signed in.</p>
-      <span class="tag here"><i class="dot here"></i><span>this page · no trackers, no cookies, no third-party requests</span></span>
+      <p class="fine">Nothing is on sale and nothing is charged. Prices are planned, not final; checkout opens only after the release evidence above is shown and the legal pages are reviewed.</p>
+      <span class="tag here"><i class="dot here"></i><span>this page · no trackers, <a href="cookies.html">no cookies</a>, no third-party requests</span></span>
     </div>
     <div class="stripes" aria-hidden="true"><i></i><i></i><i></i></div>
   </section>
@@ -754,8 +863,8 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
 
 <footer>
   <div class="inner foot">
-    <p>Friday runs on your PC and uses the AI subscription you already pay for. Windows 10/11, one signed-in CLI. The room: person from the Microsoft Rocketbox Avatar Library (MIT), interior light from Poly Haven (CC0), three.js and Lenis (MIT).</p>
-    <nav aria-label="Legal"><a href="refund.html">Refunds</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></nav>
+    <p>Friday runs on your PC and uses the AI subscription you already pay for. Windows 10/11, one signed-in CLI. Not affiliated with or endorsed by Anthropic, OpenAI or Google; Claude Code, Codex and Gemini are their trademarks. The room: person from the Microsoft Rocketbox Avatar Library (MIT), interior light from Poly Haven (CC0), three.js and Lenis (MIT).</p>
+    <nav aria-label="Legal"><a href="privacy.html">Privacy</a><a href="cookies.html">Cookies</a><a href="terms.html">Terms</a><a href="refund.html">Refunds</a></nav>
   </div>
 </footer>
 
@@ -844,11 +953,14 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
     e.preventDefault();
     em.removeAttribute("aria-invalid");
     if (!em.value.trim() || !em.checkValidity()) { em.setAttribute("aria-invalid", "true"); say("That doesn't look like an email address. Check it and try again.", "bad"); em.focus(); return; }
-    if (!ok.checked) { say("Tick the box to agree to one email at launch.", "bad"); ok.focus(); return; }
+    if (!ok.checked) { say("Tick the box to confirm you're 18 or older and agree to the emails.", "bad"); ok.focus(); return; }
     go.disabled = true; say("Saving…");
     try {
       const r = await fetch(wl.action, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify({ email: em.value, consent: true, plan: (wl.querySelector("input[name=plan]:checked") || {}).value || "trial", website: $("#wl-site").value }) });
+        body: JSON.stringify({ email: em.value, consent: true, website: $("#wl-site").value,
+          plan: (wl.querySelector("input[name=plan]:checked") || {}).value || "trial",
+          windows: (wl.querySelector("input[name=windows]:checked") || {}).value || "",
+          cli: (wl.querySelector("input[name=cli]:checked") || {}).value || "" }) });
       const data = await r.json();
       if (r.ok && data.ok) { wl.classList.add("done"); say(data.message, "good"); }
       else { say(data.message || "Couldn't save that, and nothing was stored. Try again in a minute.", "bad"); }
@@ -856,11 +968,8 @@ footer{position:relative;z-index:10;background:var(--bg);border-top:1px solid va
     go.disabled = false;
   });
 
-  /* "Get the free trial" (and any data-plan link): pick that option, then put the cursor in the email box */
-  $$("a[data-plan]").forEach(a => a.addEventListener("click", () => {
-    const r = wl.querySelector("input[name=plan][value=" + a.dataset.plan + "]"); if (r) r.checked = true;
-    setTimeout(() => em.focus({ preventScroll: true }), 1200);
-  }));
+  /* request-invite links: put the cursor in the first question once the page has scrolled there */
+  $$('a[href="#preview"]').forEach(a => a.addEventListener("click", () => setTimeout(() => { const f = wl.querySelector("input[name=windows]:checked"); if (f) f.focus({ preventScroll: true }); }, 1200)));
 
   /* hero: the three recorded replies take turns */
   const cards = $$("#cards .card");
