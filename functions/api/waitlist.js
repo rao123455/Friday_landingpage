@@ -61,7 +61,7 @@ export async function onRequestPost({ request, env }) {
   }
   const consent = data.consent === true || data.consent === "on" || data.consent === "true";
   if (!consent) {
-    return reply(request, 400, "Tick the box to agree to one email at launch.");
+    return reply(request, 400, "Tick the box to confirm you're 18 or older and agree to the emails.");
   }
 
   const plan = data.plan === undefined || data.plan === "" ? "trial" : String(data.plan);
